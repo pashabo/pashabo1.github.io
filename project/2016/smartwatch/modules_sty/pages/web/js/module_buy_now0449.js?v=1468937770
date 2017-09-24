@@ -1,0 +1,208 @@
+function ModuleBuyNow(tips) {
+    this.settings = tips;
+    this.tip_delay = 7000; //время показа и скрытия сообщения
+    this.names = [
+        //male
+        [
+            'Сергей', 'Дмитрий', 'Алексей', 'Егор', 'Вячеслав', 'Анатолий', 'Александр', 'Борис', 'Владимир', 'Игорь', 'Михаил', 'Никита'
+        ],
+        //female
+        [
+            'Анна', 'Елена', 'Дарья', 'Алиса', 'Алина', 'Евгения', 'Елизавета', 'Екатерина', 'Ольга', 'Оксана', 'Яна', 'Виктория', 'Ирина'
+        ]
+    ];
+
+    this.surname = [
+        'Иванов', 'Михалев', 'Ощепков', 'Калмыков', 'Анисимов', 'Королёв', 'Коновалов', 'Зуев', 'Журавлёв', 'Ефимов', 'Дроздов', 'Доронин', 'Горбунов', 'Воронцов',
+        'Волков', 'Наумов', 'Меркушев', 'Панфилов', 'Самойлов', 'Соболев', 'Тарасов', 'Тимофеев', 'Фадеев', 'Харитонов', 'Яковлев'
+    ];
+
+    if (this.settings.widget_timeout_a) {
+        this.widget_timeout_a = this.settings.widget_timeout_a;
+        delete this.settings.widget_timeout_a;
+    } else {
+        this.widget_timeout_a = 20;
+    }
+
+    if (this.settings.widget_timeout_b) {
+        this.widget_timeout_b = this.settings.widget_timeout_b;
+        delete this.settings.widget_timeout_b;
+    } else {
+        this.widget_timeout_b = 120;
+    }
+
+    if (this.settings.first_delay_a) {
+        this.first_delay_a = this.settings.first_delay_a;
+        delete this.settings.first_delay_a;
+    } else {
+        this.first_delay_a = 10
+    }
+
+    if (this.settings.first_delay_b) {
+        this.first_delay_b = this.settings.first_delay_b;
+        delete this.settings.first_delay_b;
+    } else {
+        this.first_delay_b = 60
+    }
+
+    if (typeof this.settings.is_random !== 'undefined') {
+        if (this.settings.is_random == 1) {
+            this.is_random = 1;
+        } else {
+            this.is_random = 0;
+        }
+        delete this.settings.is_random;
+    } else {
+        this.is_random = 0;
+    }
+
+    if (typeof this.settings.is_show_on_mobile !== 'undefined') {
+        if (this.settings.is_show_on_mobile == 1) {
+            this.is_show_on_mobile = 1;
+        } else {
+            this.is_show_on_mobile = 0;
+        }
+        delete this.settings.is_show_on_mobile;
+    } else {
+        this.is_show_on_mobile = 1;
+    }
+
+    if(typeof this.settings.is_show_again !== 'undefined') {
+        if(this.settings.is_show_again == 1) {
+            this.is_show_again = 1;
+        } else {
+            this.is_show_again = 0;
+        }
+        delete this.settings.is_show_again;
+    } else {
+        this.is_show_again = 1;
+    }
+
+    this.shuffleArray = function (a) {
+        var j, x, i;
+        for (i = a.length; i; i -= 1) {
+            j = Math.floor(Math.random() * i);
+            x = a[i - 1];
+            a[i - 1] = a[j];
+            a[j] = x;
+        }
+    };
+
+    this.tips = $.map(this.settings, function (val, i) {
+        if (typeof val !== 'undefined' && val.length) {
+            return [val];
+        }
+    });
+
+    if (this.is_random) {
+        this.shuffleArray(this.tips);
+    }
+    this.counter = 0;
+
+    this.init = function () {
+        if (!this.tips.length) {
+            return;
+        }
+        var that = this,
+            rnd = this.getRandomInt(this.first_delay_a, this.first_delay_b),
+            timeout_id;
+        timeout_id = setTimeout(function () {
+            that.firstRun()
+        }, rnd * 1000);
+    };
+
+    this.firstRun = function () {
+        var that = this,
+            rnd = this.getRandomInt(this.widget_timeout_a, this.widget_timeout_b);
+        that.addTip();
+        setTimeout(function () {
+            if (that.stopped) {
+                return false;
+            }
+            that.firstRun();
+        }, rnd * 1000 + that.tip_delay);
+    };
+
+    this.addTip = function () {
+        this.showTip();
+        //останавливаем если все сообщения показаны и стоит на то разрешение
+        if((this.counter + 1) == this.tips.length && this.is_show_again == 0) {
+            this.stopped = true;
+            return false;
+        }
+        this.counter = (this.counter + 1) % this.tips.length;
+    };
+
+    this.getRandomInt = function (min, max) {
+        var rand = min - 0.5 + Math.random() * (max - min + 1);
+        rand = Math.round(rand);
+        if (rand === -0) {
+            rand = 0;
+        }
+        return rand;
+    };
+
+    this.showTip = function () {
+        var html = this.generateHTML(), name;
+        if (typeof window.module_geotarget !== 'undefined' && window.module_geotarget.city.length) {
+            html = html.replace(/\#city\#/gi, window.module_geotarget.city);
+        }
+
+        if (html.search(/#имя_муж#/gi)) {
+            name = this.getRandomName(0);
+            html = html.replace(/#имя_муж#/gi, name);
+        }
+
+        if (html.search(/#имя_жен#/gi)) {
+            name = this.getRandomName(1);
+            html = html.replace(/#имя_жен#/gi, name);
+        }
+
+        var el = $(html);
+        $('body').append(el);
+
+        el.fadeIn(1000, function () {
+            var $that = $(this);
+            setTimeout(function () {
+                $that.fadeOut(1000, function () {
+                    $that.remove();
+                    $that = null;
+                })
+            }, 5000);
+        });
+    };
+
+    this.generateHTML = function () {
+        //если чел хочет чтоб на мобилках не работал данный модуль
+        if ($('body').hasClass('mobile370') && this.is_show_on_mobile === 0) {
+            return '';
+        } else {
+            return '<div class="widget_preview_wrapper"> ' +
+                '<div class="t-grid"> ' +
+                '<div class="t-row">' +
+                '<div class="t-cell">' +
+                '<div class="widget_preview_icon"></div>' +
+                '</div>' +
+                '<div class="t-cell">' +
+                '<div class="widget_preview bg_buy_now widget_preview_text">' + this.tips[this.counter] + '</div>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+        }
+    };
+
+    this.getRandomName = function (gen) {
+        var gender = gen,
+            name = this.names[gender][this.getRandomInt(0, this.names[gender].length - 1)],
+            surname = this.surname[this.getRandomInt(0, this.surname.length - 1)];
+
+        if(gender === 1) {
+            surname = surname + 'a';
+        }
+
+        return name + ' ' + surname;
+
+    }
+}
+

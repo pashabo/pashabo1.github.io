@@ -1,0 +1,12 @@
+@font-face {
+    font-family: 'A Avante';
+    src: local('a_Avante'), local('aavante'), url('../fonts/a_Avante/a_Avante-regular.ttf.html') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'A AvanteBs';
+    src: local('a_AvanteBs'), local('aavantebs'), url('../fonts/a_Avante/a_AvanteBs.ttf.html') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}

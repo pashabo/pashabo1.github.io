@@ -1,0 +1,2332 @@
+;
+(function () {
+    function FsitesMan() {
+        this.siteExpandSpeed = 200;
+        this.siteExpandMargins = 20;
+        this.tarifMaxSites = 0;
+        this.tarifMaxPages = 0;
+        this.tarifMaxDomains = 0;
+        this.countDomains = 0;
+        this.tarifCurSites = 0;
+        this.sitePrice = 0;
+        this.draggingSiteData = {};
+        this.hasTariffDaily = false;
+        this.in_preview = false;
+        this.max_file_fields = null;
+        this.is_ready = false;
+    }
+
+    FsitesMan.prototype.ready = function () {
+        consoleDbg('INIT: sites man');
+        this.$sitesList = $('#sites_list1');
+        this.$is_tpl_changed = $("#frmnotifymail__is_tpl_changed");
+        this.initSiteHeaderClick();
+        this.bindOpengraphEvents();
+        //  this.initSiteTabs();
+        //  this.initSiteLinks()
+        if ($('table.file_config').length) {
+            this.initFilesTab();
+        }
+
+        this.is_ready = true;
+        FE.runAndClr('sitesMan/ready');
+    };
+
+    FsitesMan.prototype.isReady = function () {
+        return this.is_ready;
+    };
+
+    FsitesMan.prototype.initFilesTab = function () {
+        $('.file_ops .edit_file').click(sitesMan.startEditFileName);
+        $('.file_name_h_span').dblclick(sitesMan.startEditFileName);
+        $('.file_name_rollback').click(function () {
+            $(this).closest('.file_name').removeClass('edit-mode');
+        });
+        $('.file_name_save').click(sitesMan.finishEditFileName);
+        $('.file_name_inp').keydown(function (e) {
+            if (13 == e.keyCode) {
+                sitesMan.finishEditFileName.call(this);
+            }
+        });
+    };
+    FsitesMan.prototype.startEditFileName = function () {
+        var fn = $(this).hasClass('edit_file') ? $(this).closest('tr').find('.file_name') : $(this).closest('.file_name');
+        fn.addClass('edit-mode');
+        fn.find('.file_name_inp').focus();
+    };
+    FsitesMan.prototype.finishEditFileName = function () {
+        var sn = $(this).closest('.file_name'), inp = sn.find('.file_name_edit .file_name_inp'),
+            state = $(this).closest('tr.file_row').find('.file_upload_state div');
+        ajaxLoad({
+            url: inp.attr('site_id') + '/sites/rename_site_file/id:' + inp.attr('file_id'),
+            data: {name: inp.val()},
+            success: function (data) {
+                if ('undefined' === typeof data.res) {
+                    return;
+                }
+                if (0 == data.res) {
+                    if ('undefined' === typeof data.mes) {
+                        alert('Ошибка! ' + mes);
+                    }
+                }
+            }
+        });
+        sn.find('.file_name_h_span').text(inp.val());
+        sn.removeClass('edit-mode');
+        state.removeClass('ok not-pub').addClass('sync');
+        sn = inp = null;
+    };
+
+    /**
+     * Сворачивает и разворачивает блоки сайтов
+     */
+    FsitesMan.prototype.initSiteHeaderClick = function () {
+        this.$sitesList.children('.one_site').find('.site_expander a').click(function () {
+            var p = $(this).closest('.one_site'),
+                p_id = p.attr('id').replace('site-', ''),
+                state = $.cookie('sites_expanded');
+
+            if (!isset(state)) {
+                state = '';
+            }
+
+            if (p.hasClass('collapsed')) {//раскрываем
+                if (-1 == state.indexOf(p_id)) {
+                    state += ',' + p_id;
+                }
+                p.removeClass('collapsed');
+            }
+            else {//скрываем
+                if (-1 !== state.indexOf(p_id)) {
+                    state = state.replace(p_id, '');
+                }
+                p.addClass('collapsed');
+            }
+
+            state = state.replace(/[,]+/g, ',');//убираем повторение запятых
+            state = state.replace(/^[,]+/, '');//убираем запятую, если она первая
+
+            setStateCookie('sites_expanded', state);
+            state = p = p_id = null;
+        });
+    };
+
+    FsitesMan.prototype.initSiteTabs = function () {
+        this.$sitesList.children('.one_site').find('.one_site_tabs .td_one_site_tab').click(function () {
+            $(this).parent().children('.td_one_site_tab.sel').removeClass('sel');//снимаем выделение со всех ярлыков вкладок
+            $(this).addClass('sel');//выделяем текущий ярлык
+
+            $(this).closest('.one_site_cont').find('.one_site_tabcont > .one_site_tab')
+                .hide() //скрываем все блоки с содержимым вкладок
+                .filter('#' + $(this).attr('tab')).show(); //показываем содержимое выделенной вкладки
+        });
+
+        this.$sitesList.find('.one_site').find('.one_site_tabs .td_one_site_tab:first').click();
+    };
+
+    FsitesMan.prototype.initSiteLinks = function () {
+        this.$sitesList.find('.site_links a').click(function () {
+            if ('undefined' !== typeof $(this).data('clicked')) {
+                return false;
+            }
+
+            $(this).animate({paddingLeft: 26}, 100, function () {
+                $(this).addClass('loading');
+            });
+            $(this).data('clicked', true);
+            return true;
+        });
+    };
+
+    FsitesMan.prototype.collapseAllSites = function () {
+        $('.one_site').addClass('collapsed');
+        setStateCookie('sites_expanded', '');
+    };
+
+    FsitesMan.prototype.initStatChart = function (chart_id, stat_categories, stat_data) {
+        $('#' + chart_id).highcharts({
+            chart: {
+                type: 'column',
+                renderTo: 'container',
+                showAxes: true,
+                style: {
+                    fontSize: '16'
+                },
+                spacingTop: 0,
+                spacingRight: 0,
+                spacingBottom: 10,
+                spacingLeft: 0,
+                height: '250',
+                width: '668'
+            },
+            title: {
+                text: 'Посещаемость сайта'
+            },
+            credits: {
+                enabled: false
+            },
+            xAxis: {
+                categories: stat_categories, //['раз','два']
+                gridLineWidth: 1,
+                gridLineColor: '#EDEDED',
+                tickmarkPlacement: 'on',
+                min: 0,
+                max: 30,
+                labels: {
+                    step: 2
+                }
+            },
+            scrollbar: {
+                enabled: true
+            },
+            yAxis: {
+                title: {
+                    text: 'Посетители',
+                    style: {
+                        fontFamily: 'Verdana',
+                        color: '#CCC',
+                        fontWeight: 'normal'
+                    }
+                },
+                labels: {
+                    step: 1
+                },
+                gridLineColor: '#EDEDED'
+            },
+            series: [{
+                name: 'Посетителей',
+                data: stat_data //[{y:1},{y:2}]
+            }],
+            tooltip: {
+                headerFormat: '<span style="font-size: 14px">{point.key}</span><br/>',
+                pointFormat: '<span style="font-size: 14px">{series.name} <b>{point.y}</b></span>',
+                useHTML: true
+            },
+            plotOptions: {
+                column: {
+                    animation: false
+                }
+            },
+            legend: {enabled: false},
+            colors: ['#C3B0FA']
+        });
+    };
+
+    FsitesMan.prototype.initDatePiker = function (obj) {
+        if ('string' === typeof obj) {
+            obj = $(obj);
+        }
+        obj.datepicker({
+            showAnim: 'show',
+            prevText: 'Предыдущий месяц',
+            nextText: 'Следующий месяц',
+            monthNames: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+            dayNamesMin: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+            dateFormat: 'dd.mm.yy',
+            firstDay: 1,
+            showButtonPanel: true,
+            currentText: 'Сегодня',
+            closeText: 'Закрыть',
+            constrainInput: true,
+            beforeShow: function (input, inst) {
+                $(input).attr('disabled', 'disabled').blur();
+            },
+            onClose: function (dateText, inst) {
+                $(this).removeAttr('disabled');
+            }
+        });
+    };
+
+    FsitesMan.prototype.sendDeclarationForm = function (obj) {
+        var el = $(obj);
+        var frm = el.closest('form');
+        var frm_id = frm.attr('id');
+        var data = {};
+        var ajaxData = {};
+        var k = 0, m = 0;
+
+        //  console.log(frm.serialize());
+
+        data['sum'] = frm.find('input[name="' + frm_id + '[sum]"]');
+        data['d_start'] = frm.find('input[name="' + frm_id + '[date_start]"]');
+        data['d_end'] = frm.find('input[name="' + frm_id + '[date_end]"]');
+        data['check'] = frm.find('input[name="' + frm_id + '[avg_check]"]');
+        data['conv'] = frm.find('input[name="' + frm_id + '[conversion]"]');
+
+        //  console.log(data);
+        //  var matches={'d_start':null, 'd_end':null};
+
+        //var ar=['sum','check','conv'];
+        for (k in data) {
+            if ('d_start' == k || 'd_end' == k) {
+                m = data[k].val().match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+                if (!m) {
+                    alert('Необходимо ввести правильную дату');
+                    data[k].focus();
+                    return;
+                }
+                else {
+                    ajaxData[k] = parseInt(m[3] + m[2] + m[1]);
+                }
+            }
+            else {
+                ajaxData[k] = data[k].val();
+                if (!data[k].val().match(/^\d+$/)) {
+                    alert('Необходимо ввести правильное число');
+                    data[k].focus();
+                    return;
+                }
+            }
+        }
+
+        //  for (k in matches)
+        //  {
+        //    matches[k]['val'] = parseInt(matches[k][3]+matches[k][2]+matches[k][1]);
+        //  }
+
+        if (ajaxData['d_start'] > ajaxData['d_end']) {
+            alert('Дата начала должна быть раньше даты окончания');
+            return;
+        }
+
+        //console.log(frm.serialize());
+        $.ajax({
+            url: window.baseUrl + 'sites/ajax/frm:frmdeclaration/id:' + frm_id,
+            type: 'POST',
+            cache: false,
+            dataType: 'json',
+            data: frm.serialize(),
+            timeout: 40000
+        });
+    };
+
+    FsitesMan.prototype.changeDeclaration = function (obj) {
+        var dv = $(obj).closest('.declaration_view');
+        dv.hide();
+        dv.prev('.declaration_edit_form').show();
+    };
+
+    FsitesMan.prototype.cancelDeclarationEditting = function (obj) {
+        var def = $(obj).closest('.declaration_edit_form');
+        def.hide();
+        def.next('.declaration_view').show();
+    };
+
+    FsitesMan.prototype.createSiteChooseTpl = function (obj) {
+        var el = $(obj);
+        el.closest('#tpls_list').children('.active').removeClass('active');
+        el.closest('.one_tpl').addClass('active');
+        el = null;
+    };
+
+    FsitesMan.prototype.createInit = function () {
+        $('#frmonesite__empty_tpl input[type=radio]').click(function () {
+            var tl = $('#tpls_list'), scb = $('#sites_create_blk'), tbb = $('#td_before_btn'), ot = tl.find('.one_tpl');
+
+            if (!scb.is(':animated')) {
+                if (1 == parseInt($(this).val())) {
+                    if (803 > scb.width() && !tl.is(':visible')) {
+                        ot.hide();
+                        tl.show();
+                        scb.animate({width: 803}, 600, function () {
+                            $('#tpls_list .one_tpl').show();
+                        });
+                        tbb.animate({width: 0}, 600);
+                    }
+                }
+                else {
+                    if (tl.is(':visible')) {
+                        ot.hide();
+                        tl.hide();
+                        scb.animate({width: 700}, 600);
+                        tbb.animate({width: 60}, 600);
+                    }
+                }
+            }
+            tl = scb = tbb = ot = null;
+        });
+
+        helpSlider('#tplslide_helper');
+    };
+    FsitesMan.prototype.createSiteCheckboxEmptyClick = function () {
+        //  var el=$(obj);
+        var tl = $('#frmonesite__empty_tpl input[type=radio]:checked'), scb = $('#sites_create_blk'), tbb = $('#td_before_btn');
+        if (1 == tl.val()) {
+            tl.show();
+            scb.animate({width: 803}, 600);
+            tbb.animate({width: 0}, 600);
+        }
+        else {
+            tl.hide();
+            scb.animate({width: 700}, 600);
+            tbb.animate({width: 60}, 600);
+        }
+        tl = scb = tbb = null;
+    };
+
+    FsitesMan.prototype.initNewList = function () {
+        $('#sitesTutorialVideo')
+            .wind('setShowFunc', function (obj) {
+                var wb = obj.$el.find('.wind-body'), pat = obj.$el.find('.pat');
+                wb.html('<iframe ' + pat.html() + '></iframe>');
+                wb = pat = null;
+                return true;
+            })
+            .wind('setAfterCloseFunc', function (obj) {
+                obj.$el.find('.wind-body').html('');
+                setcookie('sites_tutorial_closed', 1, new Date().getTime() + 2592000, 'index.html');
+                return true;
+            });
+
+        if ($('.tbody_sites').length > 0) {
+            $('.tbody_sites').sortable({
+                connectWith: '.tbody_sites',
+                handle: '.site_lbl',
+                placeholder: 'sort_ph',
+                opacity: 1,
+                cursor: 'move',
+                tolerance: 'pointer',
+                dropOnEmpty: true,
+                start: function (event, ui) {
+                    $(this).sortable('refreshPositions');
+                    ui.placeholder.addClass('tr_site fnt2').html('<td colspan="5"><div>ПОМЕСТИТЬ САЙТ ЗДЕСЬ</div></td>');
+                    ui.helper.css({width: 'auto', height: 'auto'});//alert(ui.item.attr('id-site'));return;
+                    sitesMan.draggingSiteData[ui.item.attr('id-site')] = {parent: ui.item.parent(), prev: ui.item.prev(), item: ui.item};
+                    sitesMan._used_domains = sitesMan.getUsedDomains(); // !!! запоминаем ДО того, как перетащили
+                },
+                stop: function (event, ui) {
+                    if (null !== sitesMan.sitesAjax) {//если аякс тормозит, а чел перетаскивает снова
+                        jAlert('Подождите, когда завершится предыдущая команда перемещения.');
+                        sitesMan.moveSiteBack(ui.item.attr('id-site'));
+                        return;
+                    }
+
+                    var closestBlockId = ui.item.closest('.iblk').attr('id');
+                    if (sitesMan.tarifMaxPages > 0 && 'iblk-monthly' == closestBlockId && sitesMan.getMonthlyPagesCount() > sitesMan.tarifMaxPages) {
+                        //если бросаем сайт в блок тарифа, а туда больше нельзя
+                        sitesMan.moveSiteBack(ui.item.attr('id-site'));
+                        sitesMan.alertTarifIsFull(sitesMan.tarifMaxPages);
+                    }
+                    else if (sitesMan.tarifMaxDomains > 0 && ui.item.attr('data-root_domain') && (-1 == $.inArray(ui.item.attr('data-root_domain'), sitesMan._used_domains)) && 'iblk-monthly' == closestBlockId && sitesMan.getActiveDomainsCount() > sitesMan.tarifMaxDomains) {
+                        //если бросили сайт с custom_domain туда, куда больше нельзя
+                        sitesMan.moveSiteBack(ui.item.attr('id-site'));
+                        sitesMan.alertDomainsLimitIsFull(sitesMan.tarifMaxDomains);
+                    }
+                    else if ('iblk-daily' == closestBlockId) {//положили сайт в дневной блок
+                        var lp = parseInt(ui.item.attr('last-pay'));
+                        if (isNaN(lp) || lp < sitesMan.curCronDate) {
+                            //          jConfirm('Этот сайт еще не публиковался сегодня.<br/>За него сразу будет списана оплата за 1 день.', {
+                            //            width:355,
+                            //            onOk:function(){sitesMan.recountSitesPos();},
+                            //            onCancel:function(){sitesMan.moveSiteBack(ui.item.attr('id-site'));}
+                            //          })
+                            sitesMan.alertDailySiteNeedPayment(function () {
+                                sitesMan.updateSiteSwitch(ui.item, closestBlockId);
+                                sitesMan.recountSitesPos();
+                            }, function () {
+                                sitesMan.moveSiteBack(ui.item.attr('id-site'));
+                            });
+                        }
+                        else {
+                            sitesMan.updateSiteSwitch(ui.item, closestBlockId);
+                            sitesMan.recountSitesPos();
+                        }
+                    }
+                    else {//остальные случаи
+                        //ui.item.find('.site_publish .switch')['iblk-disabled'==closestBlockId ? 'removeClass':'addClass']('on')['iblk-disabled'==closestBlockId ? 'addClass':'removeClass']('off');
+                        sitesMan.updateSiteSwitch(ui.item, closestBlockId);
+                        sitesMan.recountSitesPos();
+                    }
+                    closestBlockId = null;
+                },
+                over: function (event, ui) {
+                    sitesMan.showHideEmptyBlocks();
+                    sitesMan.recountDailyExpense();
+                }
+            });
+        }
+
+        if (typeof (access) != "undefined") {
+            access.onAddAccess = function () {
+                var site_id = access.accessData.site_id;
+                var _access = $('.access-site[site_id=' + site_id + ']');
+                if (_access.hasClass('hidden')) {
+                    _access.removeClass('hidden').prev().addClass('hidden');
+                    _access.children('.count-access').html('1');
+                } else {
+                    var count = parseInt(_access.children('.count-access').html());
+                    _access.children('.count-access').html(count + 1)
+                }
+            };
+
+            access.onRemoveAccess = function (site_id) {
+                var _access = $('.access-site[site_id=' + site_id + ']');
+                if (_access.hasClass('hidden')) {
+                } else {
+                    var temp_count = parseInt(_access.children('.count-access').text().trim());
+
+                    if (isNaN(temp_count) || temp_count - 1 <= 0) {
+                        _access.addClass('hidden').prev().removeClass('hidden');
+                        _access.children('.count-access').text(' ');
+                    } else {
+                        _access.children('.count-access').text(temp_count - 1);
+                    }
+                }
+            };
+        }
+
+        $(document).on('click', '.info-new-access', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var $this = $(this),
+                infopanel = $this.children('.popup_info'),
+                closeInfoPanel = function (e) {
+                    $('.popup_info').hide();
+                    $(document).unbind('click', closeInfoPanel)
+                };
+
+            if (infopanel.css('display') == 'block') {
+                $(document).unbind('click', closeInfoPanel);
+            } else {
+                $('.popup_info').hide();
+                infopanel.show();
+                $(document).bind('click', closeInfoPanel);
+            }
+        });
+
+        $(document).on('click', '.add-new-access', function () {
+            access.data.site_id = $(this).attr('site_id');
+            access.addEmailAccess();
+        });
+
+        $(document).on('click', '.access-site', function () {
+            var currentAccess, modal, tpl, result, _access, email;
+
+            access.data.site_id = $(this).attr('site_id');
+            $.get(window.baseUrl + 'access/ajax/frm:getsiteaccess/id:' + access.data.site_id, function (data) {
+                modal = $('#myModal');
+                tpl = modal.find('.access-user-item.hidden');
+
+                var $siteName = $('.tr_site[id-site='+access.data.site_id+'] .site_name_h span');
+                modal.find('.access-site-name').text($siteName.text());
+
+                modal.find('.access-user-item:not(.hidden, .add)').remove();
+                modal.modal();
+                for (var i = 0; i < data.accesses.length; i++) {
+                    _access = tpl.clone().removeClass('hidden');
+                    email = data.accesses[i].email;
+                    tpl.before(_access);
+                    _access.children('.access-user-item__email').html(email);
+                }
+            });
+
+        });
+
+        $(document).on('click', '.access-user-item:not(.add)', function () {
+            var email = $(this).children('.access-user-item__email').html();
+            $('#myModal').modal('hide');
+            access.accessData = {
+                email: email,
+                site_id: access.data.site_id
+            };
+
+            access.openModal();
+        });
+
+        $(document).on('click', '.tr_site .site_name .site_name_h div.edit_name, .abtest_item .abtest_name .site_name_h div.edit_name', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var sn = $(this).closest('.site_name'), inp = sn.find('.site_name_edit .site_name_inp');
+            inp.val($(this).closest('.site_name_h').children('span').text().trim());
+            sn.addClass('edit-mode');
+            inp.focus();
+            sn = inp = null;
+        });
+
+        $(document).on('click', '.tr_site .site_name .site_name_save', function (e) {
+            var sn = $(this).closest('.site_name'), inp = sn.find('.site_name_edit .site_name_inp');
+            ajaxLoad({
+                url: inp.attr('site_id') + '/sites/ajax/frm:frmsitename',
+                data: {frmsitename: {name: inp.val()}, from_list: 1}
+            });
+            sn.find('.site_name_h span').text(inp.val().trim());
+            sn.removeClass('edit-mode');
+            sn = inp = null;
+        });
+
+        $(document).on('click', '.abtest_item .abtest_name .site_name_save', function (e) {
+            var sn = $(this).closest('.site_name'), inp = sn.find('.site_name_edit .site_name_inp');
+            var variant_id = $(this).closest('.abtest_item').attr('variant-id');
+            ajaxLoad({
+                url: inp.attr('site_id') + '/sites/ajax/frm:frmvariantname',
+                data: {frmvariantname: {name: inp.val().trim(), variant_id: variant_id}, from_list: 1}
+            });
+            sn.find('.site_name_h span').text(inp.val().trim());
+            sn.removeClass('edit-mode');
+            sn = inp = null;
+        });
+
+        $(document).on('click', '.vl-item', function (e) {
+            var cnt = 0;
+
+            $('input.vl-item').each(function () {
+                if ($(this).prop('checked')) {
+                    cnt++;
+                }
+            });
+
+            if (cnt > 1) {
+                $('#vl-btn-start').removeClass('disabled');
+            } else {
+                $('#vl-btn-start').addClass('disabled');
+            }
+        });
+
+        $('#vl-btn-start').unbind('click').bind('click', function () {
+            var list = [];
+            $('input.vl-item').each(function () {
+                if ($(this).prop('checked')) {
+                    list.push($(this).attr('id-site'));
+                }
+            });
+
+            if (list.length > 1) {
+                lockScreen();
+                $.ajax({
+                    url: window.baseUrl + window.siteId + '/sites/abtest',
+                    method: 'post',
+                    data: {
+                        list: list,
+                        do: 'set_list'
+                    },
+                    success: function (data) {
+                        if (data == 1) {
+                            location.reload();
+                        } else {
+                            console.log(data);
+                        }
+                    }
+                });
+            }
+        });
+
+        $('#vl-btn-stop').unbind('click').bind('click', function () {
+            lockScreen();
+            $.ajax({
+                url: window.baseUrl + window.siteId + '/sites/abtest',
+                method: 'post',
+                data: {
+                    do: 'stop'
+                },
+                success: function (data) {
+                    if (data == 1) {
+                        location.reload();
+                    } else {
+                        console.log(data);
+                    }
+                }
+            });
+        });
+
+        $('.disable-variant').unbind('click').bind('click', function () {
+            lockScreen();
+
+            $.ajax({
+                url: window.baseUrl + window.siteId + '/sites/abtest',
+                method: 'post',
+                data: {
+                    variant_id: $(this).closest('.abtest_item').attr('variant-id'),
+                    do: 'disable_variant'
+                },
+                success: function (data) {
+                    if (data == 1) {
+                        location.reload();
+                    } else {
+                        console.log(data);
+                    }
+                }
+            });
+        });
+
+        $('.enable-variant').unbind('click').bind('click', function () {
+            lockScreen();
+
+            $.ajax({
+                url: window.baseUrl + window.siteId + '/sites/abtest',
+                method: 'post',
+                data: {
+                    variant_id: $(this).closest('.abtest_item').attr('variant-id'),
+                    do: 'enable_variant'
+                },
+                success: function (data) {
+                    if (data == 1) {
+                        location.reload();
+                    } else {
+                        console.log(data);
+                    }
+                }
+            });
+        });
+
+        $('.delete-variant').unbind('click').bind('click', function () {
+            $('#vl-btn-delete').attr('variant-id', $(this).closest('.abtest_item').attr('variant-id'));
+            $('#delete_variant').modal('show');
+        });
+
+        $('#vl-btn-delete').unbind('click').bind('click', function () {
+            lockScreen();
+
+            var variant_id = $(this).attr('variant-id');
+
+            $.ajax({
+                url: window.baseUrl + window.siteId + '/sites/abtest',
+                method: 'post',
+                data: {
+                    variant_id: variant_id,
+                    do: 'delete_variant'
+                },
+                success: function (data) {
+                    if (data == 1) {
+                        sitesMan.afterVariantDelete(variant_id);
+                    } else {
+                        console.log(data);
+                    }
+                }
+            });
+
+            return false;
+        });
+
+        $('.set-base-variant').unbind('click').bind('click', function () {
+            lockScreen();
+
+            $.ajax({
+                url: window.baseUrl + window.siteId + '/sites/abtest',
+                method: 'post',
+                data: {
+                    variant_id: $(this).closest('.abtest_item').attr('variant-id'),
+                    do: 'set_base_variant'
+                },
+                success: function (data) {
+                    if (data == 1) {
+                        location.reload();
+                    } else {
+                        console.log(data);
+                    }
+                }
+            });
+        });
+
+        $(document).on('click', '.tr_site .site_name .site_name_rollback, .abtest_item .abtest_name .site_name_rollback', function (e) {
+            $(this).closest('.site_name').removeClass('edit-mode');
+        });
+
+        this.curCronDate = null;
+        this.dailyExpenseBlock = $('#daily_expense');
+        this.dailySitesList = $('#iblk-daily .tbody_sites:first');
+        this.monthlySitesList = $('#iblk-monthly .tbody_sites:first');
+        this.sitesAjax = null;
+    };
+
+    FsitesMan.prototype.createEmptyVariant = function (variant_for) {
+        window.location.href = window.baseUrl + siteId + '/sites/create_empty_variant/variant_for:' + variant_for;
+        return false;
+    };
+
+    FsitesMan.prototype.cloneVariant = function (id) {
+        window.location.href = window.baseUrl + id + '/sites/clone_site/variant_for:' + siteId + '/redirect_to:tab_abtest';
+        return false;
+
+    };
+
+    FsitesMan.prototype.initEditSiteName = function () {
+        $(document).on('click', '.bs_block_title h1.fnt .icon-pencil2', function (e) {
+            var sn = $(this).parent('.fnt:first');
+            var inp = sn.find('.site_name_edit .site_name_inp');
+            sn.css('height', sn.outerHeight());
+            inp.val(sn.children('span').text());
+            sn.addClass('edit-mode');
+            inp.focus();
+            sn = inp = null;
+        });
+
+        $(document).on('click', '.bs_block_title h1.fnt .site_name_save', function (e) {
+            var sn = $(this).parents('.fnt:first');
+            var inp = sn.find('.site_name_edit .site_name_inp');
+            ajaxLoad({
+                url: siteId + '/sites/ajax/frm:frmsitename',
+                data: {frmsitename: {name: inp.val()}, from_list: 1}
+            });
+            sn.css('height', 'auto').removeClass('edit-mode');
+            sn.children('span:first').text(inp.val());
+            sn = inp = null;
+        });
+
+        $(document).on('click', '.bs_block_title h1.fnt .site_name_rollback', function (e) {
+            $(this).parents('.fnt:first').css('height', 'auto').removeClass('edit-mode');
+        });
+    };
+
+    FsitesMan.prototype.alertDailySiteNeedPayment = function (okFunc, cancelFunc) {
+        jAlert('<div class="title_for_message">Этот сайт еще не публиковался сегодня</div>' +
+            '<div class="text_for_message">За него сразу будет списана оплата за 1 день</div>', {
+            width: 600,
+            btnCls: 'btn-success',
+            btnWidth: 160,
+            okText: 'Продолжить',
+            onOk: okFunc || function () {
+            },
+            onCancel: cancelFunc || function () {
+            }
+        })
+    };
+    FsitesMan.prototype.alertOnlySiteOwner = function (action) {
+        var mes = 'Это действие может совершить только владелец сайта!';
+        switch (action) {
+            case 'on_site_publish': mes = 'Опубликовать сайт может только владелец!'; break;
+            case 'off_site_publish': mes = 'Отключить сайт может только владелец!'; break;
+        }
+        jAlert('<div class="title_for_message">' + mes + '</div>', {
+            width: 600,
+            btnCls: 'btn-success',
+            btnWidth: 160,
+            okText: 'Хорошо',
+            onOk: function () {},
+            onCancel: function () {}
+        })
+    };
+    FsitesMan.prototype.alertDomainsLimitIsFull = function (max_domains) {
+        var mes = '<div class="img_for_message img_off"></div>' +
+        '<div class="title_for_message">' +
+            'На текущем тарифе можно запустить <br/>' +
+            '<strong>максимум ' + max_domains + ' домен' + plural(max_domains, '', 'а', 'ов') + '</strong>' +
+        '</div>' +
+            '<hr class="mv3"/>' +
+        '<div class="text_for_message">' +
+            'Запустите сайт на поддомене или<br/>прикрепите к другому сайту как страницу.</br/>' +
+            'Также вы можете перейти на более "мощный" тариф.' +
+        '</div>';
+
+        jAlert(mes, {
+            width: 500,
+            btnWidth: 200,
+            btnCls: 'btn btn-success',
+            okText: 'Перейти к тарифам',
+            headerText: '',//Количество доменов в тарифе превышено
+            onOk: function () {
+                mxt('btn balance', {'источник': mxGetSourceLink()});
+                setTimeout("goTo('profile/tarifs');", 200);
+                return false;
+            }
+        });
+    };
+    FsitesMan.prototype.alertTarifIsFull = function (max_pages) {
+        var mes = '<div class="img_for_message img_off"></div>' +
+        '<div class="title_for_message">' +
+            'На текущем тарифе можно запустить<br/>' +
+            '<strong>максимум ' + max_pages + ' сайт' + plural(max_pages, '', 'а', 'ов') + '</strong>' +
+        '</div>' +
+            '<hr class="mv3"/>' +
+        '<div class="text_for_message">' +
+            'Выключите один из сайтов или</br>перейдите на более высокий тариф.' +
+        '</div>';
+
+        jAlert(mes, {
+                width: 500,
+                btnWidth: 200,
+                btnCls: 'btn btn-success',
+                okText: 'Перейти к тарифам',
+                headerText: '',//Количество запущенных страниц в тарифе превышено
+                alertClass: 'alert-max-sites-constraint',
+                onOk: function () {
+                    mxt('btn balance', {'источник': mxGetSourceLink()});
+                    setTimeout("goTo('profile/tarifs');", 200);
+                    return false;
+                }
+            });
+    };
+    FsitesMan.prototype.alertTarifIsFullInTest = function (max_pages) {
+        jAlert('<div class="img_for_message img_off"></div>' +
+            //'<p class="title_for_message">На текущем тарифе вы можете запустить <strong> максимум ' + max_pages + ' страниц' + plural(max_pages, 'у', 'ы', '') + '</strong></p>' +
+            '<p class="title_for_message">На текущем тарифе вы можете запустить<br/>' +
+            '<strong> максимум ' + max_pages + ' сайт' + plural(max_pages, '', 'а', 'ов') + '</strong>' +
+            '</p>' +
+            '<hr/>' +
+            '<div class="text_for_message"><a href="' + baseUrl + 'sites/list">Выключите</a> один из сайтов </br> или </br>Перейдите на более "мощный" тариф  в разделе Баланс.</div>'
+            , {
+                width: 700,
+                btnWidth: 200,
+                btnCls: 'btn btn-success',
+                okText: 'Перейти в Баланс',
+                headerText: '',//Количество запущенных страниц в тарифе превышено
+                onOk: function () {
+                    mxt('btn balance', {'источник': mxGetSourceLink()});
+                    setTimeout("goTo('profile/balance');", 200);
+                    return false;
+                }
+            });
+    };
+
+    FsitesMan.prototype.moveSiteBack = function (id_site, movePosBack) {
+        if (this.draggingSiteData[id_site]) {
+            if (this.draggingSiteData[id_site].prev.length) {
+                this.draggingSiteData[id_site].item.insertAfter(this.draggingSiteData[id_site].prev);
+            } else {
+                this.draggingSiteData[id_site].item.prependTo(this.draggingSiteData[id_site].parent);
+            }
+            this.draggingSiteData[id_site].item.attr('cur-grp', this.draggingSiteData[id_site].item.closest('.iblk').attr('id'));
+        }
+        this.showHideEmptyBlocks();
+        this.recountDailyExpense();
+
+        if ('undefined' !== typeof movePosBack) {
+            for (var k in movePosBack) {
+                $('.tr_site[id-site=' + k + ']').attr('pos', movePosBack[k]);
+            }
+            k = null;
+        }
+        //this.recountSitesPos();
+    };
+
+    FsitesMan.prototype.getMonthlySitesCount = function () {
+        return this.monthlySitesList.children('tr.tr_site:not(.ui-sortable-helper):not(.sort_ph)').length;
+    };
+
+    FsitesMan.prototype.getMonthlyPagesCount = function () {
+        return this.monthlySitesList.children('tr.tr_site:not(.ui-sortable-helper):not(.sort_ph)').length;
+    };
+
+    // аналог API_getUsedRootDomains
+    FsitesMan.prototype.getUsedDomains = function () {
+        var used_domains = [];
+        this.monthlySitesList.children('tr[data-root_domain]:not(.ui-sortable-helper):not(.sort_ph)').each(function(){
+            var root_domain = $(this).attr('data-root_domain');
+            if (-1 == $.inArray(root_domain, used_domains)) {
+                used_domains.push(root_domain);
+            }
+        });
+
+        return used_domains;
+    };
+
+    // аналог API_countActiveDomains
+    FsitesMan.prototype.getActiveDomainsCount = function () {
+        return this.getUsedDomains().length;
+    };
+
+    FsitesMan.prototype.showHideEmptyBlocks = function () {
+        $('.tbody_sites .tr_empty').each(function () {
+            var el = $(this);
+            if (el.parent().children('tr.tr_site:not(.ui-sortable-helper)').length > 0) {
+                el.hide();
+            } else {
+                el.show();
+            }
+            el = null;
+        });
+    };
+
+    FsitesMan.prototype.recountDailyExpense = function () {
+        if (this.dailyExpenseBlock.length) {
+            this.dailyExpenseBlock.text(this.dailySitesList.find('.tr_site:not(.ui-sortable-helper)').length * this.sitePrice);
+        }
+    };
+
+    FsitesMan.prototype.recountSitesPos = function () {
+        var curPos = null, savePos = {}, cnt = 0, siteId = null, newPar = null, oldPar = null, oldPos = null;
+        $('#sites_list').children('.iblk').each(function () {
+            newPar = $(this).attr('id');
+            $(this).find('.tbody_sites .tr_site').each(function (idx) {
+                ++idx;
+                curPos = parseInt($(this).attr('pos'));
+                oldPar = $(this).attr('cur-grp');
+                if (isNaN(curPos) || curPos != idx || newPar != oldPar) {
+                    //        oldPos=parseInt($(this).attr('pos'));
+                    //        if (isNaN(oldPos)) oldPos='';
+
+                    siteId = parseInt($(this).attr('id-site'));
+                    if (!isNaN(siteId)) {
+                        cnt++;
+                        savePos[siteId] = {pos: idx, oldPos: isNaN(curPos) ? '' : curPos, newParent: newPar};
+                        $(this).attr({pos: idx, 'cur-grp': newPar});
+                    }
+                }
+            });
+        });
+
+        var m = window.location.href.match(/user:(\d+)/);
+        if (cnt > 0) {
+            this.sitesAjax = ajaxLoad({url: 'sites/ajax/frm:frmsitespos' + (null !== m ? '/user:' + m[1] : ''), data: {list: savePos}});
+        }
+        curPos = savePos = cnt = siteId = newPar = oldPar = oldPos = null;
+    };
+
+    FsitesMan.prototype.showNotEnoughMoneyForDailySite = function (curCronDate) {
+        //  jAlert('<p>На вашем балансе недостаточно средств для публикации сайта за '+curCronDate.substr(4,2)+'.'+curCronDate.substr(2,2)+'.20'+curCronDate.substr(0,2)+'.</p>' +
+        //    '<p><a href="'+window.baseUrl+'profile/balance">Пополните баланс</a> и повторите операцию.</p>');
+
+        jConfirm('<p>На вашем балансе недостаточно средств.</p>' +
+            '<p>Для запуска сайта за <strong>' + curCronDate.substr(4, 2) + '.' + curCronDate.substr(2, 2) + '.20' + curCronDate.substr(0, 2) + '</strong> нужно, чтобы на балансе было минимум <strong>' + number_format(this.sitePrice, 0) + ' руб</strong>.</p>' +
+            '<p>Пополните баланс и повторите операцию.</p>', {
+            okText: 'Пополнить',
+            btnWidth: 110,
+            onOk: function () {
+                //кнопка перехода в баланс
+                //window.location.href=window.baseUrl+'profile/balance#daily1';
+                mxt('btn balance', {'источник': mxGetSourceLink()});
+                setTimeout("goTo('profile/balance');", 200);
+            }
+        });
+    };
+
+    FsitesMan.prototype.errTplPublish = function () {
+        jAlert('<p>Данный сайт является шаблоном, его нельзя опубликовать.</p><p>Вы можете нажать на шестеренку, выбрать пункт &laquo;Клонировать&raquo; и уже клонированный сайт сможете опубликовать.</p>');
+    };
+
+    FsitesMan.prototype.onFaviconUpload = function (event, obj) {
+        console.log(event.target.files[0]);
+        if (!event.target.files[0].type.match(/^image\/(png|ico|x-icon|icon|vnd.microsoft.icon)/)) {
+            alert('Нужно выбрать картинку с расширением ICO или PNG.');
+            return false;
+        }
+        if (event.target.files[0].size > 120000) {
+            alert('Максимальный размер файла - 120 Кб.');
+            return;
+        }
+        if ($('#upload_target').length == 0) {
+            $('body').append('<iframe id="upload_target" name="upload_target" style="width:1px;height:1px;border:0;position:absolute;left:-9999px;visibility:hidden;"></iframe>');
+        }
+        var frm = $(obj).closest('form');
+        frm.submit();//отправляем форму
+        frm = null;
+    };
+    FsitesMan.prototype.faviconUploadOk = function (data) {
+        $('img#favicon_img').attr('src', data.url);
+        $('.favicon_edit').removeClass('empty');
+    };
+
+    FsitesMan.prototype.goToSites = function () {
+        location.href = window.baseUrl + 'sites/list';
+    };
+
+    FsitesMan.prototype.onSiteDelete = function (id_site, on_success, type) {
+        //<img alt="grumpy_cat" src="'+window.baseUrl+'web/images/grumpy_cat1.jpg" class="mt1">
+
+        var text = 'Удалить этот ' + (type == 'variant' ? 'вариант' : 'сайт') + '?';
+
+        jConfirm(text, {
+            site: id_site,
+            width: 330,
+            okClass: 'ibtn-red',
+            okText: 'Да, удалить',
+            btnWidth: 114,
+            onOk: function () {
+                ajaxLoad({
+                    url: 'sites/ajax/frm:delete_site/id:' + id_site,
+                    onSuccess: on_success
+                });
+            }
+        });
+    };
+
+    FsitesMan.prototype.afterSiteDelete = function (id_site) {
+        showDoneBox('Сайт удален', {width: 200, cls: 'c_text', showTime: 1000});
+        var $tr = $('#sites_list .tr_site[id-site=' + id_site + ']');
+        var $drafts = $tr.siblings('.tr_site');
+        var $empty = $tr.siblings('.tr_empty');
+
+        $tr.animate({opacity: 0}, 1000, function () {
+            $(this).remove();
+
+            if ($drafts.length < 1) {
+                $empty.show();
+            }
+        });
+
+        $tr = null;
+    };
+
+    FsitesMan.prototype.afterVariantDelete = function (id_site) {
+        location.reload();
+        /*
+         $('#variant-list-1[name=variant-list-1]').children('option[value=' + id_site + ']').remove();
+         unlockScreen();
+         $('#delete_variant').modal('hide');
+         showDoneBox('Вариант удален', {width: 200, cls: 'c_text', showTime: 1000});
+         var item = $('#variant_' + id_site);
+         item.animate({opacity: 0}, 1000, function () {
+         $(this).remove()
+         });
+         */
+    };
+
+    FsitesMan.prototype.siteTransfer = function (site_id, site_dom, site_name) {
+        $('#transver_site_name h5').text(site_name);
+        $('#transver_site_name a').attr('href', 'http://' + site_dom).text(site_dom);
+        $('#frmtransfer__site').val(site_id);
+        $('#wndTransfer .ui_error').hide();
+        $('.wind#wndTransfer').wind('show');
+        $('#frmtransfer__mail').val('').focus();
+    };
+    FsitesMan.prototype.confirmSiteTransfer = function () {
+        jConfirm('Переносим сайт?', {
+            width: 330,
+            btnWidth: 109,
+            okClass: 'ibtn-red',
+            okText: 'Да, переносим',
+            onOk: function () {
+                ajaxLoad({
+                    url: 'sites/ajax/frm:frmtransfer/ok:1' + (location.href.indexOf('/sites/view') >= 0 ? '/goto:sites' : ''),
+                    data: $('#frmtransfer').serializeArray()
+                });
+            }
+        });
+    };
+    FsitesMan.prototype.siteTransferDone = function (siteId, siteName, userMail, callback) {
+        $('#sites_list .tr_site[id-site=' + siteId + ']').remove();
+        alert('Сайт "' + siteName + '" успешно перенесен пользователю ' + userMail + '!');
+        $('.wind#wndTransfer').wind('hide');
+
+        if (typeof(callback) == 'function') {
+            callback();
+        }
+    };
+
+    //var m=window.location.href.match(/user:(\d+)/);
+    //if (cnt>0){this.sitesAjax=ajaxLoad({url: 'sites/ajax/frm:frmsitespos'+(null!==m ? '/user:'+m[1] : ''), data:{list:savePos} });}
+    FsitesMan.prototype.updateSiteSwitch = function (siteEl, closestBlockId) {
+        siteEl.find('.site_publish .switch')['iblk-disabled' == closestBlockId ? 'removeClass' : 'addClass']('on')['iblk-disabled' == closestBlockId ? 'addClass' : 'removeClass']('off');
+        siteEl.stop().css('background-color', '#FFF7C2').animate({backgroundColor: '#fff'}, 5000);
+    };
+
+    FsitesMan.prototype.setPublished = function (site_id, switchEl) {
+        var $switch = $(switchEl);
+        var m = window.location.href.match(/user:(\d+)/);
+
+        if ($switch.hasClass('on')) {
+            //включен. значит пользователь пытается выключить
+
+            jConfirm('Вы уверены, что хотите выключить сайт?', {
+                width: 330,
+                btnWidth: 109,
+                okClass: 'ibtn-red',
+                okText: 'Да, выключить',
+                onOk: function () {
+                    ajaxLoad({
+                        url: 'sites/ajax/frm:frmpublish2' + (null !== m ? '/user:' + m[1] : ''),
+                        data: {id: site_id, action: 'off'},
+                        onSuccess: function (data) {
+                            if (data.res == 1) {
+                                switch (data.mes) {
+                                    case 'ok_site_off':
+                                        var s = $('.tr_site[id-site=' + data.id + ']');
+                                        //s.css('background-color','#FFF7C2').animate({backgroundColor:'transparent'},10000);
+                                        s.appendTo($('#iblk-disabled .tbody_sites'));
+                                        //s.find('.site_publish .switch').removeClass('on').addClass('off');
+                                        console.log(s.closest('.iblk'));
+                                        sitesMan.updateSiteSwitch(s, s.closest('.iblk').attr('id'));
+                                        s.attr('pos', data.pos);
+                                        sitesMan.showHideEmptyBlocks();
+                                        showDoneBox('Сайт выключен', {width: 200, cls: 'c_text', showTime: 1000});
+                                        sitesMan.recountDailyExpense();
+                                        s = null;
+                                        break;
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+
+        } else {
+            mxt('btn run site'/*'Кнопка [Запустить сайт]'*/, {'источник': mxGetSourceLink(), 'id сайта': site_id});
+            //выключен. значит пользователь пытается включить
+            if (sitesMan.hasTariffDaily) {
+                jConfirm('Выберите месячный или дневной тариф для запуска сайта', {
+                    width: 400,
+                    btnWidth: 155,
+                    okText: 'Тариф по месяцам',
+                    cancelText: 'По дням',
+                    headerText: 'Запуск сайта',
+                    onOk: function () {
+                        sitesMan.setPublishedOn(site_id);
+                    },
+                    onCancel: function () {
+                        sitesMan.setPublishedOn(site_id, 'daily');
+                    },
+                    onClose: function () {
+                        return true;
+                    }
+                });
+            } else {
+                this.setPublishedOn(site_id);
+            }
+        }
+        m = $switch = null;
+    };
+
+    FsitesMan.prototype.setPublishedInTest = function (site_id) {
+        var m = window.location.href.match(/user:(\d+)/);
+
+        mxt('btn run site'/*'Кнопка [Запустить сайт]'*/, {'источник': mxGetSourceLink(), 'id сайта': site_id});
+        //выключен. значит пользователь пытается включить
+        if (sitesMan.hasTariffDaily) {
+            jConfirm('Выберите месячный или дневной тариф для запуска сайта', {
+                width: 400,
+                btnWidth: 155,
+                okText: 'Тариф по месяцам',
+                cancelText: 'По дням',
+                headerText: 'Запуск сайта',
+                onOk: function () {
+                    sitesMan.setPublishedOnInTest(site_id);
+                },
+                onCancel: function () {
+                    sitesMan.setPublishedOnInTest(site_id, 'daily');
+                },
+                onClose: function () {
+                    return true;
+                }
+            });
+        } else {
+            this.setPublishedOnInTest(site_id);
+        }
+    };
+
+    FsitesMan.prototype.setPublishedOn = function (site_id, run_type, forced) {
+        var m = window.location.href.match(/user:(\d+)/);
+        ajaxLoad({
+            url: 'sites/ajax/frm:frmpublish2' + (null !== m ? '/user:' + m[1] : ''),
+            data: {id: site_id, action: 'on', type: run_type || 'monthly', force: forced || 0},
+            withCredentials: true,
+            onSuccess: function (data) {
+                if (data.res == 1) {
+                    switch (data.mes) {
+                        case 'ok_site_on':
+                            var s = $('.tr_site[id-site=' + data.id + ']');
+                            if (s.length) {
+                                //s.css('background-color','#FFF7C2').animate({backgroundColor:'transparent'},10000);
+                                //console.log('#iblk-'+data.type+' .tbody_sites',$('#iblk-'+data.type+' .tbody_sites'));
+                                s.appendTo($('#iblk-' + data.type + ' .tbody_sites'));
+                                if ('daily' == data.type) {
+                                    sitesMan.recountDailyExpense();
+                                }
+                                //s.find('.site_publish .switch').removeClass('off').addClass('on');
+                                sitesMan.updateSiteSwitch(s, s.closest('.iblk').attr('id'));
+                                s.attr('pos', data.pos);
+                                sitesMan.showHideEmptyBlocks();
+                            } else {
+                                $('#btn-run-site').fadeOut(500);
+                            }
+                            showDoneBox('Сайт запущен' + ('undefined' !== typeof data.is_paid && 1 == data.is_paid ? ' и оплачен' : '') + '!', {width: 200, cls: 'c_text', showTime: 1000});
+                            if (sitesMan.in_preview) {
+                                window.location.href = window.location.href;
+                            }
+                            s = null;
+                            break;
+
+                        case 'tarif_is_full':
+                            sitesMan.alertTarifIsFull(data.max_sites);
+                            break;
+                        case 'domains_limit_is_full':
+                            sitesMan.alertDomainsLimitIsFull(data.max_domains);
+                            break;
+                        case 'only_site_owner':
+                            sitesMan.alertOnlySiteOwner(data.action);
+                            break;
+
+                        case 'need_tarif_activate':
+                            //$('#runSite').wind('show');
+                            jAlert('<div class="img_for_message img_off mb2"></div>' +
+                                '<p>Для запуска сайта вам нужно перейти в раздел &laquo;Баланс&raquo; и подключить тариф.</p>', {
+                                width: 400,
+                                btnWidth: 200,
+                                okClass: 'btn-success btn-alert-need-tarif',
+                                okText: 'Перейти в Баланс',
+                                btnCls: 'btn-success btn-alert-need-tarif',
+                                headerText: 'Запуск сайта',
+                                alertClass: 'alert-need-tarif',
+                                onOk: function () {
+                                    mxt('btn balance', {'источник': mxGetSourceLink()});
+                                    setTimeout("goTo('profile/tarifs');", 200);
+                                }
+                            });
+                            break;
+
+                        case 'daily_tarif_is_off':
+                            jConfirm('<p>Чтобы запустить сайт <strong>по дням</strong>, вам нужно активировать режим для PRO.</p><p>Для этого перейдите в раздел Баланс и в блоке с названием "ДЛЯ PRO" нажмите кнопку "Подключить".</p>', {
+                                width: 450,
+                                btnWidth: 120,
+                                okClass: 'ibtn-green',
+                                okText: 'Перейти в Баланс',
+                                onOk: function () {
+                                    //window.location.href = window.baseUrl + 'profile/balance';
+                                    mxt('btn balance', {'источник': mxGetSourceLink()});
+                                    setTimeout("goTo('profile/balance');", 200);
+                                }
+                            });
+                            break;
+
+                        case 'daily_site_need_payment':
+                            sitesMan.alertDailySiteNeedPayment(function () {
+                                sitesMan.setPublishedOn(site_id, run_type, 1);
+                            });
+                            break;
+
+                        case 'need_balance':
+                            sitesMan.showNotEnoughMoneyForDailySite(data.curCronDate);
+                            break;
+                    }
+                }
+            }
+        });
+        m = null;
+    };
+
+    FsitesMan.prototype.setPublishedOnInTest = function (site_id, run_type, forced) {
+        var m = window.location.href.match(/user:(\d+)/);
+        ajaxLoad({
+            url: 'sites/ajax/frm:frmpublish2' + (null !== m ? '/user:' + m[1] : ''),
+            data: {id: site_id, action: 'on', type: run_type || 'monthly', force: forced || 0},
+            withCredentials: true,
+            onSuccess: function (data) {
+                if (data.res == 1) {
+                    switch (data.mes) {
+                        case 'ok_site_on':
+                            $('#btn-start-test').attr('href', '#Start_test');
+                            showDoneBox('Сайт запущен' + ('undefined' !== typeof data.is_paid && 1 == data.is_paid ? ' и оплачен' : '') + '!', {width: 200, cls: 'c_text', showTime: 1000});
+                            break;
+
+                        case 'tarif_is_full':
+                            sitesMan.alertTarifIsFullInTest(data.max_sites);
+                            break;
+                        case 'domains_limit_is_full':
+                            sitesMan.alertDomainsLimitIsFull(data.max_domains);
+                            break;
+                        case 'only_site_owner':
+                            sitesMan.alertOnlySiteOwner(data.action);
+                            break;
+
+                        case 'need_tarif_activate':
+                            //$('#runSite').wind('show');
+                            jAlert('<div class="img_for_message img_off mb2"></div>' +
+                                '<div class="title_for_message">Для запуска сайта вам нужно перейти в раздел &laquo;Баланс&raquo; и подключить тариф</div>', {
+                                width: 600,
+                                btnWidth: 200,
+                                btnCls: 'btn-success btn-alert-need-tarif',
+                                okText: 'Перейти в Баланс',
+                                headerText: 'Запуск сайта',
+                                alertClass: 'alert-need-tarif',
+                                onOk: function () {
+                                    mxt('btn balance', {'источник': mxGetSourceLink()});
+                                    setTimeout("goTo('profile/tarifs');", 200);
+                                }
+                            });
+                            break;
+
+                        case 'daily_tarif_is_off':
+                            jAlert('<div class="img_for_message img_pro"></div>' +
+                                '<div class="title_for_message">Чтобы запустить сайт <strong>по дням</strong>, вам нужно активировать режим для PRO</div>' +
+                                '<div class="text_for_message">Для этого перейдите в раздел Баланс и в блоке с названием "ДЛЯ PRO" нажмите кнопку "Подключить"</div>', {
+                                width: 600,
+                                btnWidth: 160,
+                                btnCls: 'btn-success',
+                                okText: 'Перейти в Баланс',
+                                onOk: function () {
+                                    //window.location.href = window.baseUrl + 'profile/balance';
+                                    mxt('btn balance', {'источник': mxGetSourceLink()});
+                                    setTimeout("goTo('profile/balance');", 200);
+                                }
+                            });
+                            break;
+
+                        case 'daily_site_need_payment':
+                            sitesMan.alertDailySiteNeedPayment(function () {
+                                sitesMan.setPublishedOn(site_id, run_type, 1);
+                            });
+                            break;
+
+                        case 'need_balance':
+                            sitesMan.showNotEnoughMoneyForDailySite(data.curCronDate);
+                            break;
+                    }
+
+                    $('#Start_test3').find('button.close:first').click();
+                }
+            }
+        });
+        m = null;
+    };
+
+    function F_Sp6CreatePageForm() {
+        var me = this;
+        this.init = function (options) {
+            me.id = options.form_id;
+            me.el = document.getElementById(me.id);
+            me.$el = $(me.el);
+            me.initial_screen_id = $('.initial-screen').attr('id');
+            me.current_screen_id = me.initial_screen_id;
+            me.$tpl_field = me.$el.find('#' + me.id + '__tpl');
+            me.$tpl_preview_field = me.$el.find('#tpl-id-in-preview');
+            me.$empty_tpl_field = me.$el.find('#' + me.id + '__empty_tpl');
+            me.$phone_field = me.$el.find('#' + me.id + '__phone');
+            me.$phone_output_error = me.$el.find('#sp6_create_site_output_phone_error');
+            me.$name_field = me.$el.find('#' + me.id + '__name');
+            me.$phone_field.on('change', function () {
+                me.$phone_output_error.empty();
+                me.validatePhone();
+            });
+            me.$el.on('submit', function (event) {
+                if (!me._is_allow_submit) {
+                    event.preventDefault();
+                    return false;
+                }
+            });
+            me.$el.find('.sp6-go-to-step').on('click', function () {
+                var $btn = $(this),
+                    actions = $btn.attr('data-actions').toString().split(','),
+                    i;
+                for (i = 0; i < actions.length; i++) {
+                    switch (actions[i]) {
+                        case 'showScreen':
+                            var attrEvent = $btn.attr('data-carrot-event');
+                            if (attrEvent && attrEvent.length > 0) {
+                                analyticSendEvent(attrEvent);
+                            }
+                            if (false == me.showScreen($btn.attr('data-screen-id'))) {
+                                return false;
+                            }
+                            break;
+                        case 'setCategoryFilter':
+                            if (false == me.setCategoryFilter($btn)) {
+                                return false;
+                            }
+                            break;
+                        case 'setTpl':
+                            var tpl_id = $btn.attr('data-site');
+                            if (false == me.setTpl(tpl_id)) {
+                                return false;
+                            }
+                            analyticSendEvent('site/create/v' + (userHasTag('LPM-706') ? '2' : '1') + '/tpl/choose', {tpl: tpl_id});
+                            break;
+                        case 'setEmptyTpl':
+                            me.$empty_tpl_field.val(0);
+                            analyticSendEvent('create_site/empty');
+                            funnelEvent(3, 12);
+                            break;
+                        case 'setNeedTpl':
+                            me.$empty_tpl_field.val(1);
+                            analyticSendEvent('create_site/template');
+                            funnelEvent(2, 6);
+                            break;
+                        case 'showCalcScreen':
+                            switch (me.initial_screen_id) {
+                                case 'sp6_create_site_init':
+                                    if (false == me.showScreen(0 == me.$empty_tpl_field.val() ? 'sp6_create_site_init' : 'sp6_create_site_choose_tpl')) {
+                                        return false;
+                                    }
+                                    break;
+
+                                case 'sp6_create_site_init_new':
+                                    if (me.showScreen(0 == me.$empty_tpl_field.val() ? 'sp6_create_site_init_new' : 'sp6_create_site_choose_tpl_new')) {
+                                        return false;
+                                    }
+                                    break;
+                            }
+                            break;
+                        case 'back':
+                            me.fixBack();
+                            break;
+                        case 'closePreviewTpl':
+                            sitesMan.closePreviewTpl();
+                            break;
+                        case 'setTplFromPreview':
+                            var tpl_id = me.$tpl_preview_field.val();
+                            if (false == me.setTpl(tpl_id)) {
+                                return false;
+                            }
+                            analyticSendEvent('site/create/v' + (userHasTag('LPM-706') ? '2' : '1') + '/tpl/choose', {tpl: tpl_id, from_preview: true});
+                            sitesMan.closePreviewTpl();
+                            break;
+                        case 'clearPhone':
+                            me.$phone_field.val('');
+                            break;
+                        case 'submit':
+                            me.submit($btn);
+                            $btn = null;
+                            return false;
+                            break;
+                        case 'loadTpls':
+                            me.loadVisibleTpls($btn);
+                            break;
+                    }
+                }
+                $btn = null;
+                return false;
+            });
+
+            analyticSendEvent('create_site/init');
+            analyticSendEvent('site/create/v' + (userHasTag('LPM-706') ? '2' : '1') + '/start');
+        };
+        this.fixBack = function () {
+            switch (true) {
+                case ('block' == $('#sp6_create_site_init').css('display')):
+                    sitesMan.goToSites();
+                    break;
+                case ('block' == $('#sp6_create_site_input_name').css('display')):
+                    // Нажали энтер в поле ввода названия
+                    me.showScreen('sp6_create_site_input_phone');
+                    break;
+                case ('block' == $('#sp6_create_site_input_phone').css('display')):
+                    // Нажали энтер в поле ввода телефона
+                    me.submit($('#sp6_create_site_input_phone .btn-1.sp6-go-to-step'));
+                    break;
+            }
+        };
+        this.setTpl = function (id) {
+            if (!id) {
+                return false;
+            }
+            me.$tpl_field.val(id);
+            me.$empty_tpl_field.val(1);
+            analyticSendEvent('create_site/template/choose', {tpl: id});
+            return true;
+        };
+        this.validateName = function () {
+            //if (!me.$name_field.val()) {
+            //    me.showScreen('sp6_create_site_input_name');
+            //    return false;
+            //}
+            return true;
+        };
+        this.validatePhone = function () {
+            //me.$phone_field.parent().removeClass('ui_error');
+            /*if (me.$phone_field.val() && !me.$phone_field.val().match(/^\d{11}$/)) {
+             //me.$phone_field.parent().addClass('ui_error');
+             me.$phone_output_error.append($('<div></div>').addClass('ui_error_summary mt1').text('Введите 11 цифр, начиная с "7"'));
+             me.$phone_field.focus();
+             return false;
+             }*/
+            return true;
+        };
+        this.submit = function ($btn) {
+            if ($btn.hasClass('disabled')) {
+                return false;
+            }
+            if (!me.validateName()) {
+                return false;
+            }
+            if (!me.validatePhone()) {
+                return false;
+            }
+            $btn.addClass('disabled');
+            me.$tpl_preview_field.remove();
+            me._is_allow_submit = true;
+            me.el.submit();
+            return false;
+        };
+        this.setCategoryFilter = function ($btn) {
+            me.$el.find('.btn-category.selected').removeClass('selected');
+            sitesMan.$tplsList.removeClass();
+            sitesMan.$tplsList.addClass('clearfix show_' + $btn.attr('data-class'));
+            $btn.addClass('selected');
+            // заменяем data-src на src - для первых N картинок видимых шаблонов
+            var $t = sitesMan.$tplsList.children('.not-loaded.' + $btn.attr('data-class')),
+                i;
+            for (i = 0; i < 7; i++) {
+                if (!$t[i]) {
+                    break;
+                }
+                sitesMan.loadSiteTplImage($t[i]);
+            }
+            $t = null;
+            return true;
+        };
+        this.showScreen = function (id) {
+            if (!id) {
+                return false;
+            }
+
+            var siteCreateWithSpheres = userHasTag('LPM-706');
+            switch (id) {
+                case 'sp6_create_site_init':
+                    analyticSendEvent('site/create/v1/start');
+                    break;
+
+                case 'sp6_create_site_init_new':
+                    analyticSendEvent('site/create/v2/start');
+                    break;
+
+                case 'sp6_create_site_input_name':
+                    analyticSendEvent('site/create/v' + (siteCreateWithSpheres ? '2' : '1') + '/form/name');
+                    break;
+
+                case 'sp6_create_site_input_phone':
+                    analyticSendEvent('site/create/v' + (siteCreateWithSpheres ? '2' : '1') + '/form/phone');
+                    break;
+            }
+
+            me.$el.find('#' + me.current_screen_id).fadeOut(100, function () {
+                me.$el.find('#' + id).fadeIn(100, function () {
+                    me.current_screen_id = id;
+                    switch (id) {
+                        case 'sp6_create_site_input_name':
+                            me.$name_field.focus();
+                            analyticSendEvent('create_site/visit_site_name');
+                            break;
+                        case 'sp6_create_site_input_phone':
+                            me.$phone_field.focus();
+                            analyticSendEvent('create_site/visit_phone');
+                            break;
+                    }
+                });
+            });
+            return true;
+        };
+
+        this.loadVisibleTpls = function ($btn) {
+            var $wrapper = $('.tpls-list-to-load'),
+                cat_id = $btn.attr('data-cat-id');
+
+            $wrapper.attr('class', $wrapper.attr('class').replace(/show_cat_(all|[0-9]+)/g, '').replace(/\s+/g, ' '));
+            $wrapper.addClass('show_cat_' + cat_id);
+
+            var list = $wrapper.find('.site-preview-template.not-loaded.cat_' + cat_id);
+            if (list.length > 0) {
+                ImgListLoader.create(list, {
+                    onload_callback: function () {
+                        var img = $(this);
+                        img.closest('.site-preview-template').removeClass('not-loaded');
+                    }
+                }).run();
+            }
+        };
+    }
+
+    FsitesMan.prototype.loadSiteTplImage = function (tlp_row_el) {
+        var $row = $(tlp_row_el);
+        var $img = $row.find('.tpl-img');
+        $img.attr('src', $img.attr('data-src'));
+        $img.removeAttr('data-src');
+        $row.removeClass('not-loaded');
+        $img = $row = null;
+    };
+
+    FsitesMan.prototype.initCreatePage = function (options) {
+        this.$tplsList = $('#tpls-list');
+        options = options || {};
+
+        this.create_page_form = new F_Sp6CreatePageForm();
+        this.create_page_form.init(options);
+
+        $(document)
+            .on('mousedown', '.btn-tpl-choose', function () {
+                sitesMan.create_page_form.$tpl_field.val($(this).attr('data-site'));
+            })
+            .on('click', 'img.tpl-img, .btn-tpl-preview', this.previewTpl)
+        ;
+
+        // заменяем data-src на src - для первых N картинок
+        var n = 7,
+            $t = this.$tplsList.children('.tpl.not-loaded'),
+            i;
+        for (i = 0; i < n; i++) {
+            if (!$t[i]) {
+                break;
+            }
+            this.loadSiteTplImage($t[i]);
+        }
+        $t = null;
+
+        $(window).on('scroll.tpl-load', function () {
+            if ('block' != $('#sp6_create_site_choose_tpl').css('display')) {
+                return;
+            }
+            var t = sitesMan.$tplsList.children('.tpl.not-loaded');
+            if (t.length) {
+                var w = $(window), st = w.scrollTop(), wh = w.height(), img;
+                for (var k in t) {
+                    //console.log('top = ',t[k].offsetTop,' bottom=', st+wh);
+                    if (t[k].offsetTop - (st + wh) < 20) {
+                        sitesMan.loadSiteTplImage(t[k]);
+                    } else {
+                        break;
+                    }
+                }
+                w = st = wh = k = img = null;
+            } else {
+                $(window).off('scroll.tpl-load');
+            }
+        });
+        $(window).scroll();
+    };
+    FsitesMan.prototype.previewTpl = function () {
+        var el = $(this).closest('.tpl');
+        var id = parseInt(el.attr('id').replace('tpl-', ''));
+        $('body').addClass('no_overflow');
+        var p = $('#tpl-preview-wrap'), frameWrap = p.find('#tpl-preview-iframe-wrap');
+        p.addClass('visible');
+        frameWrap.children('iframe:visible').hide();
+        var frame = frameWrap.children('iframe[data-site=' + id + ']');
+        if (frame.length) {
+            frame.show();
+        } else {
+            $('#tpl-loader').show();
+            $('<iframe src="' + window.baseUrl + id + '/pages/preview_tpl" data-site="' + id + '" onload="$(\'#tpl-loader\').hide()"></iframe>').appendTo(frameWrap);
+        }
+        $('#frm3__name').val($('#frm2__name').val());
+        $('#tpl-id-in-preview').val(id);
+        if ($(this).hasClass('btn-tpl-preview')) {
+            $(this).addClass('disabled');
+        }
+
+        analyticSendEvent('create_site/template/view', {tpl: id});
+        analyticSendEvent('site/create/v' + (userHasTag('LPM-706') ? '2' : '1') + '/tpl/preview', {tpl: id});
+    };
+    FsitesMan.prototype.closePreviewTpl = function () {
+        $('body').removeClass('no_overflow');
+        $('#tpl-preview-wrap').removeClass('visible');
+    };
+    FsitesMan.prototype.chooseTpl = function () {
+        var el = $(this).closest('.tpl');
+        var id = parseInt(el.attr('id').replace('tpl-', ''));
+        //    var wnd=$('#wndChosenTpl');
+        //    wnd.find('.wind-body img.tpl').attr('src', el.find('img.tpl-img').attr('src'));
+        //    wnd.wind('show');
+    };
+
+    FsitesMan.prototype.afterGenTelegramCode = function (code) {
+        $('#telegram_code_span').text(code);
+        $('#telegram_code').show();
+        $('#telegram_ready').hide();
+    };
+
+    FsitesMan.prototype.afterTelegramTurnOff = function (code) {
+
+    };
+
+    FsitesMan.prototype.afterGenVkCode = function (code) {
+        $('#vk_code_span').text(code);
+        $('#vk_code').show();
+        $('#vk_ready').hide();
+    };
+
+    FsitesMan.prototype.afterVkTurnOff = function (code) {
+    };
+
+    FsitesMan.prototype.uploadOpengraphImg = function (event, form) {
+        if (event.target.files[0]) {
+            if (!event.target.files[0].type.match(/^image\//)) {
+                alert('Нужно выбрать файл изображения.');
+                return false;
+            }
+            if (event.target.files[0].size) {
+                if (event.target.files[0].size > 1048576) {
+                    alert('Файл слишком большой. Максимальный размер = 1 Мегабайт.');
+                    return false;
+                }
+            }
+        }
+        lockScreen('Загружаем картинку', {show_animation: true, delay_before: 1000});
+        form.submit();
+
+    };
+
+    FsitesMan.prototype.opengraphUploadOk = function (data) {
+        if (!isset(data.ops)) {
+            return;
+        }
+        var blk = $('.og_preview_image'); //ищем блок
+        if (!blk.length) {
+            blk = null;
+            consoleDbg('Картинка загружена, но не найден ее блок');
+            return;
+        }
+
+        blk.find("#og_image").attr({'src': data.url, 'data-orig-w': data.extra.w, 'data-orig-h': data.extra.h});
+    };
+
+    FsitesMan.prototype.saveOpengraphData = function () {
+        var title = $("#og_header").val();
+        var descr = $("#og_description").val();
+
+        $.ajax({
+            url: window.baseUrl + window.siteId + '/sites/ajax/frm:saveopengraph',
+            method: "POST",
+            dataType: "json",
+            data: {
+                title: title,
+                description: descr,
+            },
+            success: function (answ) {
+                if (answ.res && answ.res == 1) {
+                    $("#save_opengraph").text('Сохранено');
+                    return;
+                } else {
+                    alert(answ.error);
+                }
+            }
+        })
+    };
+
+    FsitesMan.prototype.initSocialLocker = function () {
+        var el = $(".to-lock");
+
+        if (!el.sociallocker) {
+            return;
+        }
+
+        var $locker = $(".to-lock").sociallocker({
+            demo: true,
+            text: {
+                header: "Нажмите \"поделиться\", чтобы активировать<br/>реферальные хвосты.",
+                message: "",
+            },
+            theme: "flat",
+            buttons: {
+                order: [
+                    "vk-share"
+                ],
+                counter: true
+            },
+            vk: {
+                appId: "5203064",
+                like: {
+                    pageUrl: "http://lpmotor.ru",
+                    requireSharing: true,
+                    title: 'Нравится'
+                },
+                share: {
+                    pageUrl: "http://lpmotor.ru",
+                    pageTitle: "LPmotor – Конструктор сайтов и лендингов",
+                    pageDescription: "Сейчас создаю себе сайт на конструкторе http://LPmotor.ru! Кто хочет посмотреть на результат? ))",
+                    pageImage: "http://lpmotor.s3.amazonaws.com/6/9/a/69aed0d3470e28a8574ac644456cf649.png",
+                    title: 'Поделиться'
+                },
+                subscribe: {
+                    group_id: "lpmotor",
+                    title: 'Подписаться'
+                }
+            }
+        });
+
+        lockerHeight = $locker.outerHeight();
+
+        $locker.on('unlock.sociallocker.onp', function (e, typeSender, sender) {
+            console.log('unlocked');
+            $.ajax({
+                url: window.baseUrl + 'sites/ajax',
+                method: 'POST',
+                dataType: 'JSON',
+                data: {
+                    'block': 'activate_ref_tails',
+                },
+                success: function (data) {
+                    if ('undefined' !== typeof data.res && data.res == 1) {
+                        var $success = $(".success_mes");
+
+                        $('.activate_reftails').hide();
+                        $success.html('Спасибо за ваш репост! <br><br>' +
+                            'Реф-хвосты будут подключены в течение часа <br>' +
+                            'По факту подключения вам придет письмо на <b>' + data.email + '</b>');
+                        $success.fadeIn();
+                    } else {
+                        alert('Ошибка #2258\nНапишите пожалуйста нам в тех-поддержку support@lpmotor.ru');
+                    }
+                }
+            });
+        });
+    };
+
+    /*
+     Пробует запустить сайт.
+     */
+    FsitesMan.prototype.tryPublishSite = function (opt) {
+        $.post(window.baseUrl + window.siteId + '/sites/ajax/frm:tryPublishSite',
+            {
+                id: window.siteId,
+                action: 'on',
+                type: 'monthly',
+                force: 0
+            },
+            function (success) {
+                if (success.res && success.res == 1) {
+                    switch (success.mes) {
+
+                        case 'ok_site_on':
+                            //успешный запуск сайта
+                            $("#success_publish").modal('show');
+                            opt.onOk();
+                            break;
+                        default:
+                            jAlert('<br>Ошибка при публикации сайта [#2821]');
+                            break;
+                    }
+                } else if (success.mes) {
+                    switch (success.mes) {
+                        //у пользователя не подключен тариф
+                        case 'no_tarif':
+                        case 'need_tarif_activate':
+                            $("#no_tarif_modal").modal('show');
+                            break;
+                        //максимальное кол-во сайтов на тарифе
+                        case 'tarif_is_full':
+                            sitesMan.alertTarifIsFull2(success.max_sites);
+                            break;
+                        default:
+                            jAlert('<br>Необработанный ответ от сервера[#2831]');
+                            break;
+                    }
+
+                } else {
+                    if (success.err) {
+                        jAlert('<br>' + success.err);
+                    }
+                }
+            },
+            'JSON'
+        )
+    };
+
+    FsitesMan.prototype.setIndexing = function (toggle) {
+        var $site_indexing_switch = toggle.find("#site_indexing");
+        var cur_class = (toggle.hasClass('on') ? 'on' : 'off' );
+        var prev_class = (!toggle.hasClass('on') ? 'on' : 'off' );
+        var $val = $site_indexing_switch.val(),
+            ref_follow_switch = $("#ref_follow_switch"),
+            ref_follow_section = $("#ref_follow_section");
+        $.post(window.baseUrl + window.siteId + '/sites/ajax/frm:siteindexing', {
+            site_indexing: $val,
+        }, function (response) {
+            if (typeof response.res !== 'undefined' && response.res == 'index_on') {
+                //если всё гуд - просто выходим из метода
+                ref_follow_switch.removeClass('off').addClass('on');
+                ref_follow_section.slideDown();
+                return;
+            } else if (typeof response.res !== 'undefined' && response.res == 'index_off') {
+                ref_follow_switch.removeClass('on').addClass('off');
+                ref_follow_section.slideUp();
+            } else if (response.fail || response.error) {
+                if (response.fail == 1) {
+                    $("#not_published_modal").modal('show');
+                    toggle.removeClass('on').addClass('off')
+                } else if (response.fail == 2) {
+                    $("#no_tarif_modal").modal('show');
+                    toggle.removeClass('on').addClass('off')
+                } else {
+                    alert(response.error);
+                }
+            } else {
+                alert('ошибка при отключении/подключении индексирования сайта #2266')
+            }
+            return false;
+        }, "json")
+    };
+
+    FsitesMan.prototype.setRefFollow = function (toggle) {
+        var $val = toggle.find("#ref_follow").val();
+
+        var cur_class = (toggle.hasClass('on') ? 'on' : 'off' );
+        var prev_class = (!toggle.hasClass('on') ? 'on' : 'off' );
+        $.post(window.baseUrl + window.siteId + '/sites/ajax/frm:ref_follow', {
+            ref_follow: $val,
+        }, function (response) {
+            if (response.res && response.res == 1) {
+                return;
+            } else if (response.error) {
+                alert(response.error);
+            } else {
+                alert('ошибка при отключении/подключении передачи веса ссылок #2270');
+            }
+            toggle.removeClass(cur_class).addClass(prev_class);
+            return false;
+        }, "json");
+    };
+
+    FsitesMan.prototype.publishSiteFromIndexing = function (site_id) {
+        ajaxLoad({
+            url: 'sites/ajax/frm:frmpublish2',
+            data: {id: site_id, action: 'on', type: 'monthly', force: 0},
+            withCredentials: true,
+            onSuccess: function (data) {
+                if (data.res == 1) {
+                    switch (data.mes) {
+                        case 'ok_site_on':
+                            window.location.href = window.location.href;
+                            break;
+                        case 'tarif_is_full':
+                            sitesMan.alertTarifIsFull2(data.max_sites);
+                    }
+                }
+            }
+        });
+    };
+
+    FsitesMan.prototype.generateHTMLforPreview = function (preview) {
+        var data = '';
+        var prev = preview;
+        var $tip_small_img = $(".tip.small_img");
+        $tip_small_img.hide();
+        var img = $("#og_image");
+        var img_w = intval(img.attr('data-orig-w'));
+        var img_h = intval(img.attr('data-orig-h'));
+
+        if (img_w <= 500 && prev == 'vk') {
+            prev = 'vk_mini';
+        }
+        if (prev == 'fb' && img_w <= 400 && img_w >= 200 || (img_h / img_w > 3 || img_w / img_h > 3)) {
+            prev = 'fb_mini';
+        }
+
+        var $wnd = $(".preview_window");
+        $wnd.hide();
+        switch (prev) {
+            case 'vk':
+                data += '<div class="preview_window_vk clearfix" >';
+                data = this.generatePreviewHTML(data);
+                break;
+            case 'vk_mini':
+                data += '<div class="preview_window_vk_mini clearfix" >';
+                data = this.generatePreviewHTML(data);
+                break;
+            case 'fb' :
+                data += '<div class="preview_window_fb" >';
+                data = this.generateFbPreviewHTML(data);
+                break;
+            case 'fb_mini':
+                data += '<div class="preview_window_fb_mini" >';
+                data = this.generatePreviewHTML(data);
+        }
+        var cur_img = img.attr('src');
+        //создаем шаблон для картинки
+        if (typeof cur_img == 'undefined' || (prev == 'fb' && (img_w < 200 && img_h < 200))) {
+            //если не загружена картинка подставляем свою
+            // или смотрится фб и  картинка меньше 200х200
+            $tip_small_img.show();
+            data = strtr(data, {':SRC': 'http://lpmotor.s3.amazonaws.com/6/9/a/69aed0d3470e28a8574ac644456cf649.png'});
+        } else {
+            //если загружена
+            data = strtr(data, {':SRC': cur_img});
+        }
+
+        $wnd.html(data);
+        if (prev == 'fb' && ( img_w / img_h ) >= 2.1) {
+            document.getElementsByClassName("img_wrapper")[0].style.backgroundPosition = 'center center';
+            document.getElementsByClassName("img_wrapper")[0].style.backgroundSize = 'auto 100%';
+        } else {
+            document.getElementsByClassName("img_wrapper")[0].style.backgroundPosition = '0 50%';
+            document.getElementsByClassName("img_wrapper")[0].style.backgroundSize = '100%';
+        }
+        $wnd.fadeIn();
+    };
+
+    FsitesMan.prototype.generateFbPreviewHTML = function (data) {
+        //создаем обертки
+        //у фб нет картинки, у него будет бэкграунд
+        var img_wrap = '<div class="img_wrapper" style="background: url(:SRC)" >';
+        var title_wrap = '<div class="title_wrapper" >';
+        var descr_wrap = '<div class="descr_wrapper" >';
+        data += img_wrap + '</div>';
+        var cur_title = $("#og_header").val();
+        data += title_wrap + cur_title + '</div>';
+
+        var cur_descr = $("#og_description").val();
+        data += descr_wrap + cur_descr + '</div>';
+        data += '</div>';
+        return data;
+    };
+
+    FsitesMan.prototype.generatePreviewHTML = function (data) {
+        //создаем обертки
+        var img_wrap = '<div class="img_wrapper" >';
+        var title_wrap = '<div class="title_wrapper" >';
+        var descr_wrap = '<div class="descr_wrapper" >';
+        var preview_img = '<img src=":SRC">';
+
+        //впихиваем в дату картинку и закрываем див для картинки
+        data += img_wrap + preview_img + '</div>';
+        var cur_title = $("#og_header").val();
+        //впихиваем  в дату тайтл и закрываем див для тайтла
+        data += title_wrap + cur_title + '</div>';
+
+        var cur_descr = $("#og_description").val();
+        //впихиваем  в дату описание и закрываем див для описания
+        data += descr_wrap + cur_descr + '</div>';
+        //закрываем родительское окно
+        data += '</div>';
+        return data;
+    };
+
+    FsitesMan.prototype.bindOpengraphEvents = function () {
+        var symbols_left = '';
+        var that = this;
+        var $textareas = $("#og_header, #og_description");
+        $textareas.bind('keyup keydown blur', function (e) {
+
+            if (e.keyCode == 13 && !e.shiftKey) {
+                e.preventDefault();
+                return false;
+            }
+
+            var val = $(this).val();
+            var current_textarea = $(this).attr('id');
+
+            if (current_textarea == 'og_header') {
+                symbols_left = that.countMessageLength(val, 70);
+            }
+
+            if (current_textarea == 'og_description') {
+                symbols_left = that.countMessageLength(val, 300);
+            }
+
+            $('#' + current_textarea + '_left').text(symbols_left);
+        });
+
+        $textareas.trigger('blur');
+    };
+
+    FsitesMan.prototype.countMessageLength = function (val, max_length) {
+        var symbols_left = max_length - val.length;
+        return symbols_left;
+    };
+
+    FsitesMan.prototype.alertTarifIsFull2 = function (maxSites) {
+        jAlert('<p>На текущем тарифе вы можете запустить максимум<br/>' +
+            '<strong>' + maxSites + ' сайт' + plural(maxSites, '', 'а', 'ов') + '</strong>.' +
+            '</p>' +
+            '<hr/>' +
+            '<p class="fw_bold pt1" style="color: #F58F36;">Что теперь делать?</p>' +
+            '<table class="mb2"><tr><td style="width:42%">Выключите один из сайтов, нажав на переключатель <span id="switch_example"></span> в <a href="' + window.baseUrl + '">главном меню </a>.</td>' +
+            '<td class="vam c_text fw_bold" style="width:16%;">ИЛИ</td>' +
+            '<td style="width:42%">Перейдите на более "мощный" тариф в разделе <a href="' + window.baseUrl + 'profile/balance">Баланс </a>.</td>' +
+            '</tr></table>', {
+            width: 550,
+            btnWidth: 200,
+            okClass: 'ibtn-green',
+            okText: 'Не сейчас',
+            headerText: 'Количество запущенных сайтов превышено'//Количество запущенных сайтов в тарифе превышено
+        });
+    };
+
+    FsitesMan.prototype.updateVariantLabels = function (variant_id, label) {
+        $('label[for=ab_st_item_' + variant_id + ']').find('.abtest_name_var:first').text(label);
+        $('#variant-list-1[name=variant-list-1]').children('option[value=' + variant_id + ']').text(label);
+    };
+
+    FsitesMan.prototype.cloneSite = function (site_id, check_module, check_integrations) {
+        var data = {};
+        data['type'] = 'ajax';
+
+        if (typeof (check_module) != "undefined") {
+            data['check_module'] = check_module;
+        }
+
+        if (typeof (check_integrations) != "undefined" && check_integrations) {
+            data['check_int'] = 1;
+        }
+
+        ajaxLoad({
+            url: site_id + '/sites/clone_site',
+            data: data,
+            withCredentials: true,
+            onSuccess: function (data) {
+                if (data.res == 1) {
+                    if (typeof (data.check_data) != "undefined") {
+                        var $wnd = $('#abtest__modal_copy');
+                        var $wrap_abtest_clone = $wnd.find('.wrap_abtest_clone:first');
+                        var $wrap_integrations_clone = $wnd.find('.wrap_integrations_clone:first');
+                        var $clone_integrations = $wnd.find('#clone_integrations:first');
+
+                        $clone_integrations.prop('checked', false);
+                        $wrap_abtest_clone.hide();
+                        $wrap_integrations_clone.hide();
+
+                        $wnd.attr('site-id', site_id).wind('show');
+
+                        if (typeof (data.check_data.has_abtest) != "undefined") {
+                            $wrap_abtest_clone.show();
+                        }
+
+                        if (typeof (data.check_data.has_int) != "undefined") {
+                            $wrap_integrations_clone.show();
+                        }
+                    } else {
+                        switch (data.mes) {
+                            case 'go_to':
+                                window.location.href = data.redirect_to;
+                                break;
+                        }
+                    }
+                }
+            }
+        });
+    };
+
+    FsitesMan.prototype.doCloneSite = function () {
+        var $wnd = $('#abtest__modal_copy');
+        var $clone_integrations = $wnd.find('#clone_integrations:first');
+        var clone = $clone_integrations.prop("checked");
+        var href = window.baseUrl + $wnd.attr('site-id') + '/sites/clone_site';
+
+        if (clone) {
+            href += '/copy_int:true';
+        }
+
+        window.location.href = href;
+
+        return false;
+    };
+
+    FsitesMan.prototype.loadTextareas = function () {
+        $('.textarea_load.need_load').each(function (index, elem) {
+            var el = $(elem),
+                data_id = el.attr('data-id');
+
+            if (data_id) {
+                var div = $('#textarea_data__' + data_id);
+                if (div.length) {
+                    var t = el.find('textarea:first');
+                    if (t.length) {
+                        t.val(LpmBase64.decode(div.text()));
+                        $('#frmseo__' + data_id + '_allow').val('1');
+                        el.removeClass('need_load');
+                    }
+                    t = null;
+                }
+                div = null;
+            }
+            el = data_id = null;
+        });
+    };
+
+    FE.runOnReady(function () {
+        window.sitesMan = new FsitesMan();
+        window.sitesMan.ready();
+
+        FE.add('file_uploaded_favicon', function (data) {
+            sitesMan.faviconUploadOk(data);
+        });
+
+        FE.add('file_uploaded_opengraph_image', function (data) {
+            sitesMan.opengraphUploadOk(data);
+        });
+    });
+})();
+
+(function () {
+    "use strict";
+
+    var ptr = 0, list = {}, debug = false;
+
+    function F_Loader(ptr, list, ops) {
+        this.complete = false;
+        this.ptr = ptr;
+        this.killTimer = null;
+
+        if (!list.shift && list.selector) {
+            list = list.toArray();
+        }
+        this.list = list;
+
+        this.ops = ops || {};
+        if ('undefined' === typeof this.ops.max_loading) {
+            this.ops.max_loading = 3;
+        }
+        if ('undefined' === typeof this.ops.onload_callback) {
+            this.ops.onload_callback = false;
+        }
+
+        if (debug) {
+            console.log('[ LOADER ] init', this);
+        }
+    }
+
+    F_Loader.prototype.loadCycle = function () {
+        if (0 == this.list.length) {
+            return;
+        }
+
+        var el = this.list.shift(),
+            img = $(el).find('img[data-src]');
+
+        if (1 == img.length) {
+            img.load(function () {
+                var loader = ImgListLoader.get($(this).attr('loader-ptr')),
+                    debug = ImgListLoader.isDebug();
+
+                if (!loader) {
+                    console.log('[ LOADER ] not found #' + $(this).attr('loader-ptr'));
+                    return;
+                }
+
+                if (debug) {
+                    console.log('[ LOADER ] image loaded', this);
+                }
+
+                // callback при загрузке картинки
+                if (loader.ops.onload_callback) {
+                    loader.ops.onload_callback.apply(this);
+                }
+
+                if (loader.list.length > 0) {
+                    setTimeout('var L=ImgListLoader.get(' + loader.ptr + '); if (null!==L){L.loadCycle();}', 1);
+                } else {
+                    if (!loader.complete) {
+                        loader.complete = true;
+                        if (debug) {
+                            console.log('Loader #' + loader.ptr + ' completed');
+                        }
+                    }
+                }
+                loader = null;
+            });
+            img.attr('src', img.attr('data-src'));
+            img.attr('loader-ptr', this.ptr);
+            img.removeAttr('data-src');
+        } else {
+            if (ImgListLoader.isDebug()) {
+                console.log('[ LOADER ] not 1 image found. ', img);
+            }
+        }
+    };
+
+    F_Loader.prototype.run = function () {
+        for (var i = 0, k = Math.min(this.list.length, this.ops.max_loading); i < k; i++) {
+            this.loadCycle();
+        }
+
+        this.killTimer = setInterval('var loader = ImgListLoader.get(' + this.ptr + '); if (null!==loader && loader.complete){ ImgListLoader.kill(' + this.ptr + ') }', 5000);
+    };
+
+    F_Loader.prototype.removeTimer = function () {
+        clearInterval(this.killTimer);
+        this.killTimer = null;
+    };
+
+    window.ImgListLoader = {
+        create: function (data, ops) {
+            list[++ptr] = new F_Loader(ptr, data, ops);
+            return list[ptr];
+        },
+        'get': function (ptr) {
+            return ('undefined' !== typeof list[ptr]) ? list[ptr] : null;
+        },
+        getAll: function () {
+            return list;
+        },
+        setDebug: function (v) {
+            debug = v;
+        },
+        isDebug: function () {
+            return debug;
+        },
+        kill: function (ptr) {
+            if ('undefined' !== typeof list[ptr]) {
+                if (debug) {
+                    console.log('[ LOADER ] kill #' + ptr);
+                }
+                list[ptr].removeTimer();
+                delete list[ptr];
+            }
+        }
+    };
+})();

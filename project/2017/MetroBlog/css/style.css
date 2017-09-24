@@ -1,0 +1,364 @@
+@font-face {
+    font-family: "OptimaLT";
+    src: url("../fonts/Optima_LT_Medium.ttf");
+}
+
+@font-face {
+    font-family: "Segoe WP Black";
+    src: url("../fonts/segoe-wp-black.ttf");
+}
+
+@font-face {
+    font-family: "Segoe WP Bold";
+    src: url("../fonts/segoe-wp_856.ttf");
+}
+
+@font-face {
+    font-family: "Segoe Wp N";
+    src: url("../fonts/SegoeWPN.woff");
+}
+
+@font-face {
+    font-family: "Simplo-Caps";
+    src: url("../fonts/Simplo-CapsDEMO.otf");
+}
+
+@font-face {
+    font-family: "Segoe WP Light";
+    src: url("../fonts/SegoeWP-Light.ttf");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    margin: 0 auto;
+    padding: 0;
+    width: 1024px;
+}
+
+header {
+    padding: 0;
+    margin: 0;
+    height: 120px;
+    border-bottom: 1px solid #e5e5e5;
+    line-height: 120px;
+    min-width: 1024px;
+}
+
+header .logo {
+    float: left;
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: 24px;
+    padding: 0;
+}
+
+header nav {
+    margin: 0;
+    padding: 0;
+    float: right;
+}
+
+header nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+header nav ul li {
+    display: inline-block;
+}
+
+header nav ul li a {
+    font-size: 23px;
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-family: "Segoe WP N", sans-serif;
+    color: #323332;
+    text-decoration: none;
+}
+
+header nav ul li a:hover {
+    padding: 10px 20px;
+    background: #373737;
+    color: #fff;
+}
+
+.banner {
+    width: 100%;
+    height: 540px;
+    margin: 0;
+    padding: 0;
+}
+
+.banner .text {
+    margin-top: 188px;
+    margin-left: 20px;
+}
+
+.banner .text h1 {
+    font-size: 61.13px;
+    font-family: "Segoe WP Light", sans-serif;
+    color: #5D5D5D;
+    text-align: left;
+    font-weight: 400;
+}
+
+.banner .text h2 {
+    font-size: 47.13px;
+    font-family: "Segoe WP Light", sans-serif;
+    color: #5D5D5D;
+    text-align: left;
+    font-weight: 400;
+    margin-bottom: 30px;
+}
+
+.banner .text a {
+    font-size: 20px;
+    color: #fff;
+    text-decoration: none;
+    padding: 7px 13px;
+    background: #373737;
+    font-family: "Segoe WP N", sans-serif;
+}
+
+.banner .text a img {
+    vertical-align: middle;
+    padding-right: 5px;
+}
+
+.banner .image {
+    float: right;
+    position: relative;
+    margin-top: -250px;
+    margin-right: -100px;
+}
+
+.left {
+    width: 680px;
+    float: left;
+    padding-bottom: 50px;
+}
+
+article {
+    position: relative;
+    width: 680px;
+}
+
+article ol {
+    list-style: none;
+}
+
+article ol li {
+    height: 242px;
+}
+
+article ol li img {
+    float: left;
+    margin-right: 30px;
+}
+
+article ol li .copy {
+    width: 340px;
+    float: left;
+    font-family: "Segoe WP Light", sans-serif;
+}
+
+article ol li .copy h2 {
+    font-size: 30px;
+    font-family: "Segoe WP Light", sans-serif;
+    color: #696161;
+    line-height: 1.233;
+    text-align: left;
+}
+
+article ol li .copy p {
+    margin-top: 10px;
+    font-size: 14px;
+    font-family: "Segoe WP Light", sans-serif;
+    color: #848484;
+    line-height: 1.429;
+    text-align: left;
+}
+
+.slidewrap {
+    overflow: hidden !important;
+    position: relative;
+    width: 100%;
+}
+
+.prev,
+.next {
+    display: inline-block;
+    text-indent: -9999px;
+    float: left;
+}
+
+.prev {
+    background-image: url(../images/icon_left.png);
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.next {
+    background-image: url(../images/icon_right.png);
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.third .nextprev {
+    width: 60px;
+    height: 40px;
+    background-color: #989998;
+    margin-top: -40px;
+    position: relative;
+    float: right;
+}
+
+.third .prev {
+    background-color: #7c7d7c;
+}
+
+.third .next,
+.third .prev {
+    width: 30px;
+    float: left;
+    height: 40px;
+}
+
+.post {
+    margin-top: 60px;
+    margin-right: 20px;
+    width: 210px;
+    float: left;
+}
+
+.post h2 a {
+    text-decoration: none;
+    font-size: 26px;
+    font-family: "Segoe WP Light", sans-serif;
+    color: rgb(105, 97, 97);
+    line-height: 1.077;
+    text-align: left;
+}
+
+.post h2 a:hover {
+    text-decoration: underline;
+}
+
+.post .info span {
+    display: inline-block;
+    margin: 10px 0;
+    font-size: 14px;
+    font-family: "Segoe WP Light", sans-serif;
+    color: rgb(132, 132, 132);
+    line-height: 1.429;
+}
+
+.post p {
+    font-size: 14px;
+    font-family: "Segoe WP Light", sans-serif;
+    color: rgb(132, 132, 132);
+    line-height: 1.429;
+}
+
+div .post:nth-last-child(3n-2) {
+    margin-right: 0;
+}
+
+.right {
+    width: 325px;
+    float: right;
+}
+
+.reklama a {
+    text-decoration: none;
+}
+
+.subscribe {
+    padding: 24px 30px;
+    margin-top: 25px;
+    background: #393a39;
+    border-bottom: 7px solid #bb4465;
+}
+
+.subscribe h2 {
+    font-size: 27px;
+    font-family: "Segoe WP Light", sans-serif;
+    color: rgb(255, 255, 255);
+    text-transform: uppercase;
+    line-height: 1;
+    text-align: center;
+}
+
+.subscribe p {
+    margin-top: 15px;
+    font-size: 16px;
+    font-family: "Segoe WP Light", sans-serif;
+    color: rgb(255, 255, 255);
+    line-height: 1.25;
+    text-align: left;
+}
+
+.subscribe form input {
+    margin-top: 15px;
+    width: 247px;
+    padding: 8px 9px;
+    background: #fff;
+    font-family: "Segoe WP N", sans-serif;
+    color: #787878;
+    border: 0;
+}
+
+.subscribe form button {
+    border: 0;
+    background: #bb4465;
+    border-radius: 5px;
+    padding: 10px 29px;
+    text-transform: uppercase;
+    font-size: 18px;
+    margin-top: 15px;
+    font-family: "OptimaLT", sans-serif;
+    color: rgb(255, 255, 255);
+    text-align: center;
+    margin-left: 44px;
+    cursor: pointer;
+}
+
+footer {
+    height: 86px;
+    width: 100%;
+    min-width: 1024px;
+    float: left;
+    color: #fff;
+    background: #393a39;
+}
+
+footer p {
+    font-size: 16px;
+    font-family: "Segoe WP Light", sans-serif;
+    line-height: 86px;
+    color: rgb(255, 255, 255);
+    text-align: center;
+}
+
+footer ul {
+    list-style-type: none;
+    float: right;
+    position: relative;
+    margin-top: -86px;
+}
+
+footer ul li {
+    display: inline-block;
+    margin-left: 16px;
+    margin-top: 27px;
+}

@@ -1,0 +1,65 @@
+<manifest alg="2" build="2015.2.0.352" opt="false" iceEnabled="true" iceMarkupVersion="2" iceEnabledOptions="link,responsive" exportTarget="other" domain="mastermani.ru/example/board" resolutions="1x" timestamp="1470769002134">
+  <folder name="css">
+    <file name="site_global.css" crc="3916556066"/>
+    <file name="index.css" crc="4031671242" ref="index"/>
+    <file name="spasibo.css" crc="3830103487" ref="spasibo"/>
+  </folder>
+  <folder name="assets">
+    <file name="coolform2style.css" crc="4220602352" seo="true" mt="1458847797000"/>
+    <file name="coolform2script.js" crc="286949645" seo="true" mt="1458847911000"/>
+  </folder>
+  <folder name="scripts">
+    <file name="jquery-1.8.3.min.js" crc="312386352" ref="index:spasibo"/>
+    <file name="museutils.js" crc="4155826306" ref="index:spasibo"/>
+    <file name="whatinput.js" crc="86476730" ref="index:spasibo"/>
+    <file name="museconfig.js" crc="483509463" ref="index:spasibo"/>
+    <file name="pie.js" crc="3827607177" ref="index"/>
+    <file name="jquery.watch.js" crc="117772946" ref="index:spasibo"/>
+    <file name="jquery.musepolyfill.bgsize.js" crc="4034513494" ref="index"/>
+    <file name="webpro.js" crc="4078243563" ref="index"/>
+    <file name="form_check.php" crc="474517188" ref="index"/>
+    <file name="form_throttle.php" crc="495784356" ref="index"/>
+    <file name="form_process.php" crc="4149049960" ref="index"/>
+    <file name="form-u1715.php" crc="4164870914" ref="index"/>
+    <file name="musewpslideshow.js" crc="4115829919" ref="index"/>
+    <file name="jquery.museoverlay.js" crc="3936724022" ref="index"/>
+    <file name="touchswipe.js" crc="157639107" ref="index"/>
+    <file name="require.js" crc="228336483" ref="index:spasibo"/>
+  </folder>
+  <folder name="images">
+    <file name="favicon.ico" crc="271008854" ref="index"/>
+    <file name="fon2.jpg" crc="4202103205" ref="index"/>
+    <file name="2016-07-06_180750.jpg" crc="4251319176" seo="true" ref="index:spasibo"/>
+    <file name="3151658_orig-crop-u1537.jpg" crc="4194496635" ref="index"/>
+    <file name="3151658_orig-crop-u1547.jpg" crc="370031796" ref="index"/>
+    <file name="vkontakte-logo-crop-u1554.jpg" crc="58148892" ref="index"/>
+    <file name="gan-u343.png" crc="341868617" ref="index"/>
+    <file name="qw2-u233.png" crc="277420902" ref="index"/>
+    <file name="unnamed-u243.png" crc="4151433087" ref="index"/>
+    <file name="115718-u292.png" crc="336177968" ref="index"/>
+    <file name="test2.jpg" crc="4204439397" ref="index"/>
+    <file name="rtyy.png" crc="194643292" seo="true" ref="index"/>
+    <file name="auto.png" crc="461057044" seo="true" ref="index"/>
+    <file name="checkmark-u1423.png" crc="3793615332" ref="index"/>
+    <file name="inf.png" crc="344504749" seo="true" ref="index"/>
+    <file name="start-block.jpg" crc="4125427158" ref="index"/>
+    <file name="logo-contacts_wood_standard black.jpg" crc="4206789126" seo="true" ref="index"/>
+    <file name="07_animals with logo_preview.jpg" crc="4260435294" ref="index"/>
+    <file name="11_mario with logo_preview.jpg" crc="487692510" ref="index"/>
+    <file name="19_dogbone with logo_preview.jpg" crc="4113549227" ref="index"/>
+    <file name="21_fish with logo_preview.jpg" crc="4221821404" ref="index"/>
+    <file name="ladybug_w_logo.jpg" crc="385716041" seo="true" ref="index"/>
+    <file name="fut.jpg" crc="224033333" ref="index"/>
+    <file name="entypo_d83d(0)_24.png" crc="414881084" ref="index"/>
+    <file name="u1724-17.png" crc="4236376098" ref="index"/>
+    <file name="u1724-17-r.png" crc="20155702" ref="index"/>
+    <file name="u1724-17-m.png" crc="3794342413" ref="index"/>
+    <file name="u1724-17-fs.png" crc="4236376098" ref="index"/>
+    <file name="entypo_d83d(1)_24.png" crc="3771047223" ref="index"/>
+    <file name="entypo_e731(2)_24.png" crc="260245674" ref="index"/>
+    <file name="arrow.png" crc="3813593029" ref="index"/>
+    <file name="arrowup.png" crc="4104944702" ref="index"/>
+  </folder>
+  <file name="index.html" crc="4243953634" seo="true" mt="1470768977118" redirect="true"/>
+  <file name="spasibo.html" crc="4086041394" mt="1467895703433" redirect="true"/>
+</manifest>

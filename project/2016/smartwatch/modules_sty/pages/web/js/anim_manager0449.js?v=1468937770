@@ -1,0 +1,178 @@
+function FanimManager() {
+    this.data = {};
+    this.visible_elements = {};
+    this.animated_blocks = {};
+    this.height_window = 0;
+
+    /**
+     * Инит объекта анимации
+     */
+    this.init = function (data) {
+        var $ob = false;
+        window.animManager.data = data;
+        window.animManager.height_window = window.innerHeight;
+
+        if (!$.isEmptyObject(window.animManager.data)) {
+            for (var i in window.animManager.data) {
+
+                $ob = $('#' + window.animManager.data[i].block_id);
+
+                if ($ob.length > 0) {
+                    window.animManager.animated_blocks[i] = $ob;
+                }
+            }
+        }
+
+        var st = false;
+        $(window).on('resize', function (e) {
+            if (st === false) {
+                st = setTimeout(function () {
+                    st = false;
+                    window.animManager.h = window.innerHeight;
+                    window.animManager.onScroll(e);
+                }, 500);
+            }
+        });
+
+        $(document).on('scroll', function (e) {
+            window.animManager.onScroll(e);
+        });
+
+        $('#popup_list .section_popup').on('scroll', function (e) {
+            window.animManager.onScroll(e);
+        });
+
+        FE.add('show_section_popup', function () {
+            window.animManager.onScroll();
+        });
+
+        window.animManager.onScroll();
+    };
+
+    /**
+     * Получаем анимируемый элемент в зависимости от типа блока.
+     * @param block_id
+     */
+    this.getAnimatedObject = function (block_id) {
+        var $ob = $('#' + block_id);
+
+        if ($ob.length == 0) {
+            return false;
+        }
+
+        switch ($ob.attr('blk_class')) {
+            case 'blk_image':
+                $ob = $ob.find('img:first');
+                break;
+            case 'blk_form':
+                //$ob = $ob.find('form:first');
+                $ob = $ob.find('.blk_form_wrap:first');
+                break;
+            case 'blk_text':
+                $ob = $ob.find('.blk-data:first');
+                break;
+            case 'blk_video':
+                $ob = $ob.find('.video_container:first');
+                break;
+            case 'blk_slider':
+                $ob = $ob.find('.fotorama:first');
+                break;
+            case 'blk_button':
+                $ob = $ob.find('a:first');
+                break;
+        }
+
+        return $ob;
+    };
+
+    /**
+     * Добавление стиля на блок
+     * @param $ob
+     * @param delay
+     * @param duration
+     */
+    this.setStyle = function ($ob, delay, duration) {
+        var ob = $ob[0];
+        var style = window.getComputedStyle(ob);
+        var prop = '';
+
+        if (style.getPropertyValue('-webkit-animation-delay')) {
+            prop = '-webkit-animation-delay';
+        } else if (style.getPropertyValue('-moz-animation-delay')) {
+            prop = '-moz-animation-delay';
+        } else if (style.getPropertyValue('-o-animation-delay')) {
+            prop = '-o-animation-delay';
+        } else {
+            prop = 'animation-delay';
+        }
+        ob.style.setProperty(prop, 0 + 's'); // 'delay' зануляем так как теперь задержка через setTimeout
+
+        if (style.getPropertyValue('-webkit-animation-duration')) {
+            prop = '-webkit-animation-duration';
+        } else if (style.getPropertyValue('-moz-animation-duration')) {
+            prop = '-moz-animation-duration';
+        } else if (style.getPropertyValue('-o-animation-duration')) {
+            prop = '-o-animation-duration';
+        } else {
+            prop = 'animation-duration';
+        }
+        ob.style.setProperty(prop, duration + 's');
+    };
+
+    /**
+     * Добавление класса
+     * @param $ob
+     * @param animation_type
+     */
+    this.setClass = function ($ob, animation_type) {
+        if (!$ob.hasClass(animation_type)) {
+            $ob.addClass(animation_type);
+        }
+    };
+
+    /**
+     * Обработчик скрола контейнера
+     * @param e
+     */
+    this.onScroll = function (e) {
+        var scrollTop = self.pageYOffset || (document.documentElement && document.documentElement.scrollTop) || (document.body && document.body.scrollTop);
+        var padding = window.animManager.height_window / 100 * 5; // добавить!
+
+        window.animManager.visible_elements = {};
+
+        for (var i in window.animManager.animated_blocks) {
+            var $block = window.animManager.animated_blocks[i];
+
+            var $animated_object = window.animManager.getAnimatedObject(window.animManager.data[i].block_id);
+
+            if ($block === false || $animated_object === false) {
+                continue;
+            }
+
+            if ($animated_object.offset().top <= scrollTop + window.animManager.height_window - padding && $animated_object.offset().top + $animated_object.outerHeight() >= scrollTop + padding) {
+                window.animManager.visible_elements[i] = $block;
+                window.animManager.startAnimation($block, $animated_object, window.animManager.data[i]);
+                window.animManager.animated_blocks[i] = false;
+            }
+        }
+    };
+
+    this.startAnimation = function ($block, $animated_object, data) {
+        window.animManager.setStyle($animated_object, data.delay, data.duration);
+
+        var f_anim = function () {
+            window.animManager.setClass($animated_object, data.animation_type);
+            $block.removeClass('is_animated_block');
+        };
+
+        if (parseFloat(data.delay) > 0) {
+            setTimeout(f_anim, parseFloat(data.delay) * 1000);
+        } else {
+            f_anim();
+        }
+    }
+}
+
+window.animManager = new FanimManager();
+
+

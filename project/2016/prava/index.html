@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html class="no-js" lang="ru">
+
+<head>
+
+	<meta charset="utf-8">
+
+	<title>Заголовок</title>
+	<meta name="description" content="">
+
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<meta property="og:image" content="path/to/image.jpg">
+
+	<link rel="shortcut icon" href="img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-touch-icon-114x114.png">
+
+	<!-- Bootstrap v3.3.4 Grid Styles -->
+	<style>html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,hgroup,main,menu,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block;vertical-align:baseline}audio:not([controls]){display:none;height:0}[hidden],template{display:none}a{background-color:transparent}a:active,a:hover{outline:0}abbr[title]{border-bottom:1px dotted}b,strong{font-weight:bold}dfn{font-style:italic}h1{font-size:2em;margin:0.67em 0}mark{background:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-0.5em}sub{bottom:-0.25em}img{border:0}svg:not(:root){overflow:hidden}figure{margin:1em 40px}hr{-moz-box-sizing:content-box;-webkit-box-sizing:content-box;box-sizing:content-box;height:0}pre{overflow:auto}code,kbd,pre,samp{font-family:monospace, monospace;font-size:1em}button,input,optgroup,select,textarea{color:inherit;font:inherit;margin:0}button{overflow:visible}button,select{text-transform:none}button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}button[disabled],html input[disabled]{cursor:default}button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}input{line-height:normal}input[type="checkbox"],input[type="radio"]{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;padding:0}input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{height:auto}input[type="search"]{-webkit-appearance:textfield;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;box-sizing:content-box}input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration{-webkit-appearance:none}fieldset{border:1px solid #c0c0c0;margin:0 2px;padding:0.35em 0.625em 0.75em}legend{border:0;padding:0}textarea{overflow:auto}optgroup{font-weight:bold}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}*:before,*:after{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}html{font-size:10px;-webkit-tap-highlight-color:rgba(0,0,0,0)}body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.42857143;color:#333;background-color:#fff}input,button,select,textarea{font-family:inherit;font-size:inherit;line-height:inherit}a{color:#337ab7;text-decoration:none}a:hover,a:focus{color:#23527c;text-decoration:underline}a:focus{outline:thin dotted;outline:5px auto -webkit-focus-ring-color;outline-offset:-2px}figure{margin:0}img{vertical-align:middle}.img-responsive{display:block;max-width:100%;height:auto}.img-rounded{border-radius:6px}.img-thumbnail{padding:4px;line-height:1.42857143;background-color:#fff;border:1px solid #ddd;border-radius:4px;-webkit-transition:all .2s ease-in-out;-o-transition:all .2s ease-in-out;transition:all .2s ease-in-out;display:inline-block;max-width:100%;height:auto}.img-circle{border-radius:50%}hr{margin-top:20px;margin-bottom:20px;border:0;border-top:1px solid #eee}.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);border:0}.sr-only-focusable:active,.sr-only-focusable:focus{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto}[role="button"]{cursor:pointer}.container{margin-right:auto;margin-left:auto;padding-left:15px;padding-right:15px}@media (min-width:768px){.container{width:750px}}@media (min-width:992px){.container{width:970px}}@media (min-width:1200px){.container{width:1170px}}.container-fluid{margin-right:auto;margin-left:auto;padding-left:15px;padding-right:15px}.row{margin-left:-15px;margin-right:-15px}.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12{position:relative;min-height:1px;padding-left:15px;padding-right:15px}.col-xs-1, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9, .col-xs-10, .col-xs-11, .col-xs-12{float:left}.col-xs-12{width:100%}.col-xs-11{width:91.66666667%}.col-xs-10{width:83.33333333%}.col-xs-9{width:75%}.col-xs-8{width:66.66666667%}.col-xs-7{width:58.33333333%}.col-xs-6{width:50%}.col-xs-5{width:41.66666667%}.col-xs-4{width:33.33333333%}.col-xs-3{width:25%}.col-xs-2{width:16.66666667%}.col-xs-1{width:8.33333333%}.col-xs-pull-12{right:100%}.col-xs-pull-11{right:91.66666667%}.col-xs-pull-10{right:83.33333333%}.col-xs-pull-9{right:75%}.col-xs-pull-8{right:66.66666667%}.col-xs-pull-7{right:58.33333333%}.col-xs-pull-6{right:50%}.col-xs-pull-5{right:41.66666667%}.col-xs-pull-4{right:33.33333333%}.col-xs-pull-3{right:25%}.col-xs-pull-2{right:16.66666667%}.col-xs-pull-1{right:8.33333333%}.col-xs-pull-0{right:auto}.col-xs-push-12{left:100%}.col-xs-push-11{left:91.66666667%}.col-xs-push-10{left:83.33333333%}.col-xs-push-9{left:75%}.col-xs-push-8{left:66.66666667%}.col-xs-push-7{left:58.33333333%}.col-xs-push-6{left:50%}.col-xs-push-5{left:41.66666667%}.col-xs-push-4{left:33.33333333%}.col-xs-push-3{left:25%}.col-xs-push-2{left:16.66666667%}.col-xs-push-1{left:8.33333333%}.col-xs-push-0{left:auto}.col-xs-offset-12{margin-left:100%}.col-xs-offset-11{margin-left:91.66666667%}.col-xs-offset-10{margin-left:83.33333333%}.col-xs-offset-9{margin-left:75%}.col-xs-offset-8{margin-left:66.66666667%}.col-xs-offset-7{margin-left:58.33333333%}.col-xs-offset-6{margin-left:50%}.col-xs-offset-5{margin-left:41.66666667%}.col-xs-offset-4{margin-left:33.33333333%}.col-xs-offset-3{margin-left:25%}.col-xs-offset-2{margin-left:16.66666667%}.col-xs-offset-1{margin-left:8.33333333%}.col-xs-offset-0{margin-left:0}@media (min-width:768px){.col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12{float:left}.col-sm-12{width:100%}.col-sm-11{width:91.66666667%}.col-sm-10{width:83.33333333%}.col-sm-9{width:75%}.col-sm-8{width:66.66666667%}.col-sm-7{width:58.33333333%}.col-sm-6{width:50%}.col-sm-5{width:41.66666667%}.col-sm-4{width:33.33333333%}.col-sm-3{width:25%}.col-sm-2{width:16.66666667%}.col-sm-1{width:8.33333333%}.col-sm-pull-12{right:100%}.col-sm-pull-11{right:91.66666667%}.col-sm-pull-10{right:83.33333333%}.col-sm-pull-9{right:75%}.col-sm-pull-8{right:66.66666667%}.col-sm-pull-7{right:58.33333333%}.col-sm-pull-6{right:50%}.col-sm-pull-5{right:41.66666667%}.col-sm-pull-4{right:33.33333333%}.col-sm-pull-3{right:25%}.col-sm-pull-2{right:16.66666667%}.col-sm-pull-1{right:8.33333333%}.col-sm-pull-0{right:auto}.col-sm-push-12{left:100%}.col-sm-push-11{left:91.66666667%}.col-sm-push-10{left:83.33333333%}.col-sm-push-9{left:75%}.col-sm-push-8{left:66.66666667%}.col-sm-push-7{left:58.33333333%}.col-sm-push-6{left:50%}.col-sm-push-5{left:41.66666667%}.col-sm-push-4{left:33.33333333%}.col-sm-push-3{left:25%}.col-sm-push-2{left:16.66666667%}.col-sm-push-1{left:8.33333333%}.col-sm-push-0{left:auto}.col-sm-offset-12{margin-left:100%}.col-sm-offset-11{margin-left:91.66666667%}.col-sm-offset-10{margin-left:83.33333333%}.col-sm-offset-9{margin-left:75%}.col-sm-offset-8{margin-left:66.66666667%}.col-sm-offset-7{margin-left:58.33333333%}.col-sm-offset-6{margin-left:50%}.col-sm-offset-5{margin-left:41.66666667%}.col-sm-offset-4{margin-left:33.33333333%}.col-sm-offset-3{margin-left:25%}.col-sm-offset-2{margin-left:16.66666667%}.col-sm-offset-1{margin-left:8.33333333%}.col-sm-offset-0{margin-left:0}}@media (min-width:992px){.col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12{float:left}.col-md-12{width:100%}.col-md-11{width:91.66666667%}.col-md-10{width:83.33333333%}.col-md-9{width:75%}.col-md-8{width:66.66666667%}.col-md-7{width:58.33333333%}.col-md-6{width:50%}.col-md-5{width:41.66666667%}.col-md-4{width:33.33333333%}.col-md-3{width:25%}.col-md-2{width:16.66666667%}.col-md-1{width:8.33333333%}.col-md-pull-12{right:100%}.col-md-pull-11{right:91.66666667%}.col-md-pull-10{right:83.33333333%}.col-md-pull-9{right:75%}.col-md-pull-8{right:66.66666667%}.col-md-pull-7{right:58.33333333%}.col-md-pull-6{right:50%}.col-md-pull-5{right:41.66666667%}.col-md-pull-4{right:33.33333333%}.col-md-pull-3{right:25%}.col-md-pull-2{right:16.66666667%}.col-md-pull-1{right:8.33333333%}.col-md-pull-0{right:auto}.col-md-push-12{left:100%}.col-md-push-11{left:91.66666667%}.col-md-push-10{left:83.33333333%}.col-md-push-9{left:75%}.col-md-push-8{left:66.66666667%}.col-md-push-7{left:58.33333333%}.col-md-push-6{left:50%}.col-md-push-5{left:41.66666667%}.col-md-push-4{left:33.33333333%}.col-md-push-3{left:25%}.col-md-push-2{left:16.66666667%}.col-md-push-1{left:8.33333333%}.col-md-push-0{left:auto}.col-md-offset-12{margin-left:100%}.col-md-offset-11{margin-left:91.66666667%}.col-md-offset-10{margin-left:83.33333333%}.col-md-offset-9{margin-left:75%}.col-md-offset-8{margin-left:66.66666667%}.col-md-offset-7{margin-left:58.33333333%}.col-md-offset-6{margin-left:50%}.col-md-offset-5{margin-left:41.66666667%}.col-md-offset-4{margin-left:33.33333333%}.col-md-offset-3{margin-left:25%}.col-md-offset-2{margin-left:16.66666667%}.col-md-offset-1{margin-left:8.33333333%}.col-md-offset-0{margin-left:0}}@media (min-width:1200px){.col-lg-1, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-lg-10, .col-lg-11, .col-lg-12{float:left}.col-lg-12{width:100%}.col-lg-11{width:91.66666667%}.col-lg-10{width:83.33333333%}.col-lg-9{width:75%}.col-lg-8{width:66.66666667%}.col-lg-7{width:58.33333333%}.col-lg-6{width:50%}.col-lg-5{width:41.66666667%}.col-lg-4{width:33.33333333%}.col-lg-3{width:25%}.col-lg-2{width:16.66666667%}.col-lg-1{width:8.33333333%}.col-lg-pull-12{right:100%}.col-lg-pull-11{right:91.66666667%}.col-lg-pull-10{right:83.33333333%}.col-lg-pull-9{right:75%}.col-lg-pull-8{right:66.66666667%}.col-lg-pull-7{right:58.33333333%}.col-lg-pull-6{right:50%}.col-lg-pull-5{right:41.66666667%}.col-lg-pull-4{right:33.33333333%}.col-lg-pull-3{right:25%}.col-lg-pull-2{right:16.66666667%}.col-lg-pull-1{right:8.33333333%}.col-lg-pull-0{right:auto}.col-lg-push-12{left:100%}.col-lg-push-11{left:91.66666667%}.col-lg-push-10{left:83.33333333%}.col-lg-push-9{left:75%}.col-lg-push-8{left:66.66666667%}.col-lg-push-7{left:58.33333333%}.col-lg-push-6{left:50%}.col-lg-push-5{left:41.66666667%}.col-lg-push-4{left:33.33333333%}.col-lg-push-3{left:25%}.col-lg-push-2{left:16.66666667%}.col-lg-push-1{left:8.33333333%}.col-lg-push-0{left:auto}.col-lg-offset-12{margin-left:100%}.col-lg-offset-11{margin-left:91.66666667%}.col-lg-offset-10{margin-left:83.33333333%}.col-lg-offset-9{margin-left:75%}.col-lg-offset-8{margin-left:66.66666667%}.col-lg-offset-7{margin-left:58.33333333%}.col-lg-offset-6{margin-left:50%}.col-lg-offset-5{margin-left:41.66666667%}.col-lg-offset-4{margin-left:33.33333333%}.col-lg-offset-3{margin-left:25%}.col-lg-offset-2{margin-left:16.66666667%}.col-lg-offset-1{margin-left:8.33333333%}.col-lg-offset-0{margin-left:0}}.clearfix:before,.clearfix:after,.container:before,.container:after,.container-fluid:before,.container-fluid:after,.row:before,.row:after{content:" ";display:table}.clearfix:after,.container:after,.container-fluid:after,.row:after{clear:both}.center-block{display:block;margin-left:auto;margin-right:auto}.pull-right{float:right !important}.pull-left{float:left !important}.hide{display:none !important}.show{display:block !important}.invisible{visibility:hidden}.text-hide{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0}.hidden{display:none !important}.affix{position:fixed}@-ms-viewport{width:device-width}.visible-xs,.visible-sm,.visible-md,.visible-lg{display:none !important}.visible-xs-block,.visible-xs-inline,.visible-xs-inline-block,.visible-sm-block,.visible-sm-inline,.visible-sm-inline-block,.visible-md-block,.visible-md-inline,.visible-md-inline-block,.visible-lg-block,.visible-lg-inline,.visible-lg-inline-block{display:none !important}@media (max-width:767px){.visible-xs{display:block !important}table.visible-xs{display:table}tr.visible-xs{display:table-row !important}th.visible-xs,td.visible-xs{display:table-cell !important}}@media (max-width:767px){.visible-xs-block{display:block !important}}@media (max-width:767px){.visible-xs-inline{display:inline !important}}@media (max-width:767px){.visible-xs-inline-block{display:inline-block !important}}@media (min-width:768px) and (max-width:991px){.visible-sm{display:block !important}table.visible-sm{display:table}tr.visible-sm{display:table-row !important}th.visible-sm,td.visible-sm{display:table-cell !important}}@media (min-width:768px) and (max-width:991px){.visible-sm-block{display:block !important}}@media (min-width:768px) and (max-width:991px){.visible-sm-inline{display:inline !important}}@media (min-width:768px) and (max-width:991px){.visible-sm-inline-block{display:inline-block !important}}@media (min-width:992px) and (max-width:1199px){.visible-md{display:block !important}table.visible-md{display:table}tr.visible-md{display:table-row !important}th.visible-md,td.visible-md{display:table-cell !important}}@media (min-width:992px) and (max-width:1199px){.visible-md-block{display:block !important}}@media (min-width:992px) and (max-width:1199px){.visible-md-inline{display:inline !important}}@media (min-width:992px) and (max-width:1199px){.visible-md-inline-block{display:inline-block !important}}@media (min-width:1200px){.visible-lg{display:block !important}table.visible-lg{display:table}tr.visible-lg{display:table-row !important}th.visible-lg,td.visible-lg{display:table-cell !important}}@media (min-width:1200px){.visible-lg-block{display:block !important}}@media (min-width:1200px){.visible-lg-inline{display:inline !important}}@media (min-width:1200px){.visible-lg-inline-block{display:inline-block !important}}@media (max-width:767px){.hidden-xs{display:none !important}}@media (min-width:768px) and (max-width:991px){.hidden-sm{display:none !important}}@media (min-width:992px) and (max-width:1199px){.hidden-md{display:none !important}}@media (min-width:1200px){.hidden-lg{display:none !important}}.visible-print{display:none !important}@media print{.visible-print{display:block !important}table.visible-print{display:table}tr.visible-print{display:table-row !important}th.visible-print,td.visible-print{display:table-cell !important}}.visible-print-block{display:none !important}@media print{.visible-print-block{display:block !important}}.visible-print-inline{display:none !important}@media print{.visible-print-inline{display:inline !important}}.visible-print-inline-block{display:none !important}@media print{.visible-print-inline-block{display:inline-block !important}}@media print{.hidden-print{display:none !important}}</style>
+
+	<!-- Header CSS (First Sections of Website: paste after release from header.min.css here) -->
+	<style></style>
+
+	<!-- Load CSS, CSS Localstorage & WebFonts Main Function -->
+	<script>!function(e){"use strict";function t(e,t,n){e.addEventListener?e.addEventListener(t,n,!1):e.attachEvent&&e.attachEvent("on"+t,n)}function n(t,n){return e.localStorage&&localStorage[t+"_content"]&&localStorage[t+"_file"]===n}function a(t,a){if(e.localStorage&&e.XMLHttpRequest)n(t,a)?o(localStorage[t+"_content"]):l(t,a);else{var s=r.createElement("link");s.href=a,s.id=t,s.rel="stylesheet",s.type="text/css",r.getElementsByTagName("head")[0].appendChild(s),r.cookie=t}}function l(e,t){var n=new XMLHttpRequest;n.open("GET",t,!0),n.onreadystatechange=function(){4===n.readyState&&200===n.status&&(o(n.responseText),localStorage[e+"_content"]=n.responseText,localStorage[e+"_file"]=t)},n.send()}function o(e){var t=r.createElement("style");t.setAttribute("type","text/css"),r.getElementsByTagName("head")[0].appendChild(t),t.styleSheet?t.styleSheet.cssText=e:t.innerHTML=e}var r=e.document;e.loadCSS=function(e,t,n){var a,l=r.createElement("link");if(t)a=t;else{var o;o=r.querySelectorAll?r.querySelectorAll("style,link[rel=stylesheet],script"):(r.body||r.getElementsByTagName("head")[0]).childNodes,a=o[o.length-1]}var s=r.styleSheets;l.rel="stylesheet",l.href=e,l.media="only x",a.parentNode.insertBefore(l,t?a:a.nextSibling);var c=function(e){for(var t=l.href,n=s.length;n--;)if(s[n].href===t)return e();setTimeout(function(){c(e)})};return l.onloadcssdefined=c,c(function(){l.media=n||"all"}),l},e.loadLocalStorageCSS=function(l,o){n(l,o)||r.cookie.indexOf(l)>-1?a(l,o):t(e,"load",function(){a(l,o)})}}(this);</script>
+
+	<!-- Load CSS Start -->
+	<script>loadLocalStorageCSS( "webfonts", "css/fonts.min.css?ver=1.0.0" );</script>
+	<script>loadCSS( "css/header.min.css?ver=1.0.0", false, "all" );</script>
+	<script>loadCSS( "css/main.min.css?ver=1.0.0", false, "all" );</script>
+	<!-- Load CSS End -->
+
+	<!-- Load CSS Compiled without JS -->
+	<noscript>
+		<link rel="stylesheet" href="css/fonts.min.css">
+		<link rel="stylesheet" href="css/main.min.css">
+	</noscript>
+
+</head>
+
+<body>
+	<div class="hidden-lg hidden-md hidden">
+		<div class="main-mnu main_mnu hidden-mnu">
+			<nav>
+				<ul class="nav_left">
+					<li><a href="#">Банкротство</a></li>
+					<li><a href="#">Суд по кредиту</a></li>
+					<li><a href="#">Нечем платить кредит</a></li>
+					<li><a href="#">Антиколлекторы</a></li>
+					<li><a href="#">Списание долга</a></li>
+					<li><a href="#">Просрочка по кредиту</a></li>
+					<li><a href="#">Реструктуризация кредита</a></li>
+					<li><a href="#">Кредитный адвокат</a></li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+<header>
+	<div class="top_line clearfix">
+		<div class="container">
+			<div class="row">
+
+				<div class="col-lg-6 col-md-6 col-sm-12">
+					<div class="logo_top">
+						<a href="#">
+							<img src="img/logo.png" alt="Должник Прав">
+						</a>
+					</div>
+				</div>
+
+				<!--
+				<div class="col-lg-4 col-md-5 hidden-xs hidden-sm">
+					<div class="main-mnu">
+						<nav>
+							<ul class="nav_left">
+								<li><a href="#">Банкротство</a></li>
+								<li><a href="#">Суд по кредиту</a></li>
+								<li><a href="#">Нечем платить кредит</a></li>
+								<li><a href="#">Антиколлекторы</a></li>
+							</ul>
+							<ul>
+								<li><a href="#">Списание долга</a></li>
+								<li><a href="#">Просрочка по кредиту</a></li>
+								<li><a href="#">Реструктуризация кредита</a></li>
+								<li><a href="#">Кредитный адвокат</a></li>
+							</ul>
+						</nav>
+					</div>
+				</div>
+			 -->
+
+				<a href="#" class="toggle-mnu hidden-lg hidden-md hidden"><span></span></a>
+
+				<div class="col-lg-6 col-md-6 col-sm-12">
+					<div class="top_call">
+						<div class="call_chelaba">
+							Челябинск<span> 8 (351) 777-33-65</span>
+						</div>
+						<!--
+						<div class="call_zlatoust">
+							Златоуст<span> 8 (351) 777-33-65</span>
+						</div>
+					  -->
+						<a href="#callback" class="button call_top_btn popup-with-move-anim"><i class="fa fa-phone" aria-hidden="true"></i> Заказать звонок</a>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<div class="header_content">
+		<div class="container">
+
+			<h1>Не можете платить кредит?</h1>
+
+			<div class="row">
+
+					<div class="col-lg-6 col-md-6 col-sm-6">
+					<div class="header_item1">
+							<div class="item_img">
+								<img src="img/headit1.png" alt="img">
+								<span class="img_text">Защитим Ваше<br>имущество</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-6 col-md-6 col-sm-6">
+					<div class="header_item2">
+							<div class="item_img">
+								<img src="img/headit2.png" alt="img">
+								<span class="img_text">Защитим от банков<br>и коллекторов</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-6 col-md-6 col-sm-6">
+					<div class="header_item3">
+							<div class="item_img">
+								<img src="img/headit3.png" alt="img">
+								<span class="img_text">Спишем все пени<br>и штрафы</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-6 col-md-6 col-sm-6">
+					<div class="header_item4">
+							<div class="item_img">
+								<img src="img/headit4.png" alt="img">
+								<span class="img_text">Уменьшим или полностью<br>спишем долг</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-6 col-md-6 col-sm-6">
+					<div class="header_item5">
+							<div class="item_img">
+								<img src="img/headit5.png" alt="img">
+								<span class="img_text">Зафиксируем<br>сумму долга</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-6 col-md-6 col-sm-6">
+					<div class="header_item6">
+							<div class="item_img">
+								<img src="img/headit6.png" alt="img">
+								<span class="img_text">Защитим Вашим<br>интересы в суде</span>
+							</div>
+						</div>
+					</div>
+
+			</div>
+
+			<div class="header_form" id="header_form1">
+				<form class="formaotvrapva">
+						<h3>Запишитесь на бесплатную консультацию</h3>
+					<!-- Hidden Required Fields -->
+					<input type="hidden" name="project_name" value="dolzhnik-prav.ru">
+					<input type="hidden" name="admin_email" value="79088254025@yandex.ru">
+					<input type="hidden" name="form_subject" value="Заявка с сайта Второй экран">
+					<!-- END Hidden Required Fields -->
+
+					<input class="name_form" type="text" name="Name" placeholder="Введите Ваше имя" required>
+					<input class="call_form" type="text" name="E-mail" placeholder="Введите телефон" required>
+					<button class="one_scren_frm">Записаться</button>
+
+				</form>
+			</div>
+
+		</div>
+	</div>
+
+</header>
+
+<div class="mi_job">
+	<div class="container">
+		<h2>Как мы работаем</h2>
+		<p class="h2desc">Всю работу мы выполняем без Вашего участия, чтобы убересь Вас от неминуемого<br>
+стресса и огромных потерь времени, связанных с судебными процессами</p>
+
+	<div class="job_step">
+
+		<div class="job_step_wrap">
+			<img src="img/step1.png" alt="Как мы работаем">
+			<h4>Запрос всех<br> необходимых<br> документов</h4>
+			<ul class="opis_step">
+				<li>Пункт шага 1</li>
+				<li>Пункт шага 2</li>
+				<li>Пункт шага 3</li>
+				<li>Пункт шага 4</li>
+			</ul>
+		</div>
+
+		<div class="job_step_wrap">
+			<img src="img/step2.png" alt="Как мы работаем">
+			<h4>Анализ и подготовка<br> документов</h4>
+			<ul class="opis_step">
+				<li>Пункт шага 1</li>
+				<li>Пункт шага 2</li>
+				<li>Пункт шага 3</li>
+				<li>Пункт шага 4</li>
+			</ul>
+		</div>
+
+		<div class="job_step_wrap">
+			<img src="img/step3.png" alt="Как мы работаем">
+			<h4>Досудебная работа<br>
+с банками, МФО или<br> коллекторскими<br> агентствами</h4>
+			<ul class="opis_step">
+				<li>Пункт шага 1</li>
+				<li>Пункт шага 2</li>
+				<li>Пункт шага 3</li>
+				<li>Пункт шага 4</li>
+			</ul>
+		</div>
+
+		<div class="job_step_wrap">
+			<img src="img/step4.png" alt="Как мы работаем">
+			<h4>Судебная<br>работа</h4>
+			<ul class="opis_step">
+				<li>Пункт шага 1</li>
+				<li>Пункт шага 2</li>
+				<li>Пункт шага 3</li>
+				<li>Пункт шага 4</li>
+			</ul>
+		</div>
+
+		<div class="job_step_wrap">
+			<img src="img/step5.png" alt="Как мы работаем">
+			<h4>Установление<br> минимального<br> платежа или полное<br> списание долга</h4>
+			<ul class="opis_step">
+				<li>Пункт шага 1</li>
+				<li>Пункт шага 2</li>
+				<li>Пункт шага 3</li>
+				<li>Пункт шага 4</li>
+			</ul>
+		</div>
+
+	</div>
+
+	</div>
+</div>
+
+<div class="rasporkasec hidden-xs">
+	<img src="img/rasporkasec2.png" alt="Распорка">
+</div>
+
+<div class="itog_job">
+	<div class="container">
+
+		<h2>Итог нашей работы</h2>
+
+		<div class="itog_wrap">
+			<div class="row">
+
+				<div class="col-md-6 col-sm-6 col-xs-12">
+					<img src="img/itog.png" alt="Итог нашей работы">
+					<p>Вы получаете решение Вашей<br> проблемы и списание долга.</p>
+				</div>
+
+				<div class="col-md-6 col-sm-6 col-xs-12">
+					<img src="img/itog.png" alt="Итог нашей работы">
+					<p>Вы получаете решение Вашей<br> проблемы и списание долга.</p>
+				</div>
+
+				<div class="col-md-6 col-sm-6 col-xs-12">
+					<img src="img/itog.png" alt="Итог нашей работы">
+					<p>Вы получаете решение Вашей<br> проблемы и списание долга.</p>
+				</div>
+
+				<div class="col-md-6 col-sm-6 col-xs-12">
+					<img src="img/itog.png" alt="Итог нашей работы">
+					<p>Вы получаете решение Вашей<br> проблемы и списание долга.</p>
+				</div>
+
+			</div>
+		</div>
+
+		<div class="header_form" id="header_form2">
+			<form class="formaotvrapva">
+					<h3>Запишитесь на бесплатную консультацию</h3>
+				<!-- Hidden Required Fields -->
+				<input type="hidden" name="project_name" value="dolzhnik-prav.ru">
+				<input type="hidden" name="admin_email" value="79088254025@yandex.ru">
+				<input type="hidden" name="form_subject" value="Заявка с формы Итог нашей работы">
+				<!-- END Hidden Required Fields -->
+
+				<input class="name_form" type="text" name="Name" placeholder="Введите Ваше имя" required>
+				<input class="call_form" type="text" name="E-mail" placeholder="Введите телефон" required>
+				<button class="itog_frm">Записаться</button>
+
+			</form>
+		</div>
+
+
+	</div>
+</div>
+
+<div class="wasisdas">
+	<div class="container">
+
+		<h2>Почему мы?</h2>
+
+		<div class="row">
+			<div class="was_wrap">
+
+
+				<div class="col-lg-6 col-md-6">
+					<div class="ico_was">
+						<img src="img/was1.png" alt="Почему мы?">
+						<div class="text_was">
+							<h5>Подробная консультация</h5>
+							<p>На консультации Вы получите готовый алгоритм решения Вашей проблемы.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-lg-6 col-md-6">
+					<div class="ico_was">
+						<img src="img/was2.png" alt="Почему мы?">
+						<div class="text_was">
+							<h5>Индивидуальный подход</h5>
+							<p>Наши специалисты всегда на связи и готовы ответить на все возникающие вопросы.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-lg-6 col-md-6">
+					<div class="ico_was">
+						<img src="img/was3.png" alt="Почему мы?">
+						<div class="text_was">
+							<h5>Честность и порядочность</h5>
+							<p>Мы не обещаем решить дело, <br> которое заведомо является проигрышным.<br> Реально оцениваем все риски и шансы.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-lg-6 col-md-6">
+					<div class="ico_was">
+						<img src="img/was4.png" alt="Почему мы?">
+						<div class="text_was">
+							<h5>Открытость нашей работы</h5>
+							<p>Мы ведем свою работу в режиме онлайн на сайте. Вы всегда можете посмотреть ход нашей работы.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-lg-6 col-md-6">
+					<div class="ico_was">
+						<img src="img/was5.png" alt="Почему мы?">
+						<div class="text_was">
+							<h5>Оперативность и срок работы</h5>
+							<p>Приступаем к выполнению работы в момент заключения логовора. Срок работы не более 6 месяцев.</p>
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+		</div>
+
+	</div>
+</div>
+
+
+<div class="online">
+	<div class="container">
+		<div class="row">
+
+
+		<div class="online_wrap">
+			<h2>Наша работа онлайн</h2>
+
+			<div class="only">
+
+
+			<div class="job_only">
+
+				<div class="ontime">
+					<div class="denon">10</div>
+					<div class="yaron">января ‘16</div>
+				</div>
+				<p>Заключили сделку на оказание услуг по банкротству физ.лица
+Иванова И.А.</p>
+
+			</div>
+
+			<div class="job_only">
+
+				<div class="ontime">
+					<div class="denon">10</div>
+					<div class="yaron">января ‘16</div>
+				</div>
+				<p>Заключили сделку на оказание услуг по банкротству физ.лица
+Иванова И.А.</p>
+
+			</div>
+
+			<div class="job_only">
+
+				<div class="ontime">
+					<div class="denon">10</div>
+					<div class="yaron">января ‘16</div>
+				</div>
+				<p>Заключили сделку на оказание услуг по банкротству физ.лица
+Иванова И.А.</p>
+
+			</div>
+
+			<div class="job_only">
+
+				<div class="ontime">
+					<div class="denon">10</div>
+					<div class="yaron">января ‘16</div>
+				</div>
+				<p>Заключили сделку на оказание услуг по банкротству физ.лица
+Иванова И.А.</p>
+
+			</div>
+
+
+			</div>
+
+		</div>
+
+
+		</div>
+	</div>
+</div>
+
+
+<div class="partners">
+
+	<div class="container">
+		<h2>Мы взаимодействуем</h2>
+
+		<div class="row">
+			<div class="col-lg-4">
+				<img src="img/bank1.png" alt="Банк">
+				<div class="bank_text">
+					<h6>ЦЕНТРАЛЬНЫЙ БАНК РФ</h6>
+					<p>Контролируем законность<br>
+деятельности банков</p>
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<img src="img/bank2.png" alt="Банк">
+				<div class="bank_text">
+					<h6>МВД РОССИИ</h6>
+					<p>Обеспечиавем защиту<br>
+безопасности наших<br>
+клиентов</p>
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<img src="img/bank3.png" alt="Банк">
+				<div class="bank_text">
+					<h6>ПРОКУРАТУРА РФ</h6>
+					<p>Пресекаем любые попытки<br>
+нарушения прав наших клиентов</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-5 col-lg-offset-1">
+				<img src="img/bank4.png" alt="Банк">
+				<div class="bank_text">
+					<h6>РОСПОТРЕБНАДЗОР</h6>
+					<p>Защищаем права наших
+клиентов как потребителей
+финансовых продуктов</p>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<img src="img/bank5.png" alt="Банк">
+				<div class="bank_text">
+					<h6>СЛУЖБА СУДЕБНЫХ ПРИСТАВОВ</h6>
+					<p>Добиваемся снижения или<br>
+списания выплат по долгам</p>
+				</div>
+			</div>
+		</div>
+
+
+	</div>
+
+</div>
+
+
+<div class="price">
+	<div class="container">
+		<h2>Наши услуги</h2>
+		<div class="row">
+
+			<div class="col-lg-4 col-md-4 col-ms-12">
+
+				<div class="price_wrap">
+					<div class="header_price hderpr1">
+						<h5>Бесплатная<br>консультация</h5>
+					</div>
+					<ul>
+						<li>• По любым вопросам</li>
+						<li>• По телефону, электронной
+  почте или в нашем офисе</li>
+						<li>• Представляем
+  эффективный план действий</li>
+						<li>• Составление стратегии
+  вашей защиты</li>
+					</ul>
+					<div class="button_price">
+						<a href="#callback" class="button price_btn1 popup-with-move-anim">Заказать</a>
+					</div>
+
+				</div>
+
+			</div>
+
+			<div class="col-lg-4 col-md-4 col-ms-12">
+
+				<div class="price_wrap">
+					<div class="header_price hderpr2">
+						<h5>Юридическое<br>
+сопровождение</h5>
+					</div>
+					<ul>
+						<li>• По любым вопросам</li>
+						<li>• По телефону, электронной
+  почте или в нашем офисе</li>
+						<li>• Представляем
+  эффективный план действий</li>
+						<li>• Составление стратегии
+  вашей защиты</li>
+					</ul>
+					<div class="button_price">
+						<a href="#callback" class="button price_btn2 popup-with-move-anim">Заказать</a>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="col-lg-4 col-md-4 col-ms-12">
+
+				<div class="price_wrap">
+					<div class="header_price hderpr3">
+						<h5>Банкротство</h5>
+					</div>
+					<ul>
+						<li>• По любым вопросам</li>
+						<li>• По телефону, электронной
+  почте или в нашем офисе</li>
+						<li>• Представляем
+  эффективный план действий</li>
+						<li>• Составление стратегии
+  вашей защиты</li>
+					</ul>
+					<div class="button_price">
+						<a href="#callback" class="button price_btn3 popup-with-move-anim">Заказать</a>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+<div class="zayavkablock">
+	<div class="container">
+
+		<div class="zayawrap">
+			<div class="row">
+
+				<div class="col-lg-5 col-md-5 col-sm-6 col-xs-12">
+					<div class="dogovor">
+						Заключите договор до <span>30.01.2016</span><br>
+и <span>получите скидку</span> 3.000 рублей<br>
+на наши услуги
+					</div>
+				</div>
+
+				<div class="col-lg-7 col-md-7 col-sm-6 col-xs-12">
+					<form class="formaotvrapva formzaya" id="formzaya">
+						<h3>Оставьте заявку<br>на получение скидки:</h3>
+						<!-- Hidden Required Fields -->
+						<input type="hidden" name="project_name" value="dolzhnik-prav.ru">
+						<input type="hidden" name="admin_email" value="79088254025@yandex.ru">
+						<input type="hidden" name="form_subject" value="Заявка с формы Получите скидку">
+						<!-- END Hidden Required Fields -->
+
+						<input class="name_form" type="text" name="Name" placeholder="Введите Ваше имя" required><br>
+						<input class="call_form" type="text" name="E-mail" placeholder="Введите телефон" required><br>
+						<button class="salebtn">Получить скидку</button>
+
+					</form>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<div class="bank_problem">
+	<div class="container">
+		<h2>Мы умеем решать проблемы с банками</h2>
+		<div class="row">
+
+			<div class="col-lg-4 col-md-4 col-sm-6">
+				<div class="bank_pr_wrap">
+					<img src="img/bankpr1.png" alt="Альфа Банк">
+					<div class="bank_pr_text">
+						<h6>Альфа Банк</h6>
+						<p>100% успешных дел</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4 col-md-4 col-sm-6">
+				<div class="bank_pr_wrap">
+					<img src="img/bankpr2.png" alt="Альфа Банк">
+					<div class="bank_pr_text">
+						<h6>Сбербанк России</h6>
+						<p>100% успешных дел</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4 col-md-4 col-sm-6">
+				<div class="bank_pr_wrap">
+					<img src="img/bankpr3.png" alt="Альфа Банк">
+					<div class="bank_pr_text">
+						<h6>Восточный экспресс</h6>
+						<p>100% успешных дел</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4 col-md-4 col-sm-6">
+				<div class="bank_pr_wrap">
+					<img src="img/bankpr4.png" alt="Альфа Банк">
+					<div class="bank_pr_text">
+						<h6>Банк ВТБ24</h6>
+						<p>99% успешных дел</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4 col-md-4 col-sm-6">
+				<div class="bank_pr_wrap">
+					<img src="img/bankpr5.png" alt="Альфа Банк">
+					<div class="bank_pr_text">
+						<h6>Российский Стандарт</h6>
+						<p>99% успешных дел</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4 col-md-4 col-sm-6">
+				<div class="bank_pr_wrap">
+					<img src="img/bankpr6.png" alt="Альфа Банк">
+					<div class="bank_pr_text">
+						<h6>Банк Открытие</h6>
+						<p>99% успешных дел</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4 col-md-4 col-sm-6">
+				<div class="bank_pr_wrap">
+					<img src="img/bankpr7.png" alt="Альфа Банк">
+					<div class="bank_pr_text">
+						<h6>Хоум Кредит Банк</h6>
+						<p>100% успешных дел</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4 col-md-4 col-sm-6">
+				<div class="bank_pr_wrap">
+					<img src="img/bankpr8.png" alt="Альфа Банк">
+					<div class="bank_pr_text">
+						<h6>Банк Тинькофф</h6>
+						<p>100% успешных дел</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4 col-md-4 col-sm-6">
+				<div class="bank_pr_wrap">
+					<img src="img/bankpr9.png" alt="Альфа Банк">
+					<div class="bank_pr_text">
+						<h6>Банк Убрир</h6>
+						<p>99% успешных дел</p>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+<div class="rasporkasec hidden-xs">
+	<img src="img/rasporkaotziv1.png" alt="Распорка">
+</div>
+
+<div class="otzivi">
+	<div class="container">
+		<h2>Отзывы наших клиентов</h2>
+
+		<div class="row">
+
+		<div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1">
+			<div class="otziv_slider owl-carousel">
+<!-- Начало отзыва -->
+				<div class="item">
+					<div class="slide">
+
+					<div class="slide_ava">
+						<img src="img/slideava1.png" alt="Отзыв">
+						<p>Сергей, <br>г. Челябинск</p>
+					</div>
+
+					<div class="slide_text">
+						<p class="otziv_glav">«Теперь я должен гораздо меньшую сумму банку!»</p>
+						<p class="otziv_all">Я долго решался обращаться ли за помощью в "Должник Прав". Переживал что не смогу платить за услуги. Но после обращения, я сразу же перестал платить ежемесячный платеж банкам и плата за услуги была гораздо меньше моих платежей! Мне перестали звонить, вернули комиссию и списали штрафы. Теперь я должен гораздо меньшую сумму банку!</p>
+					</div>
+
+					</div>
+				</div>
+<!-- Конец отзыва -->
+<!-- Начало отзыва -->
+				<div class="item">
+					<div class="slide">
+
+					<div class="slide_ava">
+						<img src="img/slideava1.png" alt="Отзыв">
+						<p>Сергей, <br>г. Челябинск</p>
+					</div>
+
+					<div class="slide_text">
+						<p class="otziv_glav">«1Теперь я должен гораздо меньшую сумму банку!»</p>
+						<p class="otziv_all">Я долго решался обращаться ли за помощью в "Должник Прав". Переживал что не смогу платить за услуги. Но после обращения, я сразу же перестал платить ежемесячный платеж банкам и плата за услуги была гораздо меньше моих платежей! Мне перестали звонить, вернули комиссию и списали штрафы. Теперь я должен гораздо меньшую сумму банку!</p>
+					</div>
+
+					</div>
+				</div>
+<!-- Конец отзыва -->
+<!-- Начало отзыва -->
+				<div class="item">
+					<div class="slide">
+
+					<div class="slide_ava">
+						<img src="img/slideava1.png" alt="Отзыв">
+						<p>Сергей, <br>г. Челябинск</p>
+					</div>
+
+					<div class="slide_text">
+						<p class="otziv_glav">«2Теперь я должен гораздо меньшую сумму банку!»</p>
+						<p class="otziv_all">Я долго решался обращаться ли за помощью в "Должник Прав". Переживал что не смогу платить за услуги. Но после обращения, я сразу же перестал платить ежемесячный платеж банкам и плата за услуги была гораздо меньше моих платежей! Мне перестали звонить, вернули комиссию и списали штрафы. Теперь я должен гораздо меньшую сумму банку!</p>
+					</div>
+
+					</div>
+				</div>
+<!-- Конец отзыва -->
+
+			</div>
+		</div>
+
+		</div>
+
+	</div>
+</div>
+
+
+<div class="rasporkasec hidden-xs">
+	<img src="img/rasporkaotziv2.png" alt="Распорка">
+</div>
+
+<div class="how_to_find">
+	<div class="container">
+		<h2>Как нас найти</h2>
+
+		<div class="col-xs-12">
+			<img src="img/map.png" alt="Карта">
+			<p class="map_adress"><img src="img/location.png" alt="map">г. Челябинск, ул. Верхнеуральская, д. 14</p>
+		</div>
+
+	</div>
+</div>
+
+
+<div class="question">
+	<div class="container">
+		<h2>Остались вопросы?</h2>
+		<div class="row">
+
+		<div class="col-lg-6 col-sm-6 col-xs-12">
+			<div class="que_right">
+				<p>Позвоните по телефону:</p>
+				<p class="que_call">8 (351) 777-33-65</p>
+			</div>
+		</div>
+
+		<div class="col-lg-6 col-sm-6 col-xs-12">
+			<div class="que_left">
+				<p>Закажите обратный звонок:</p>
+				<a href="#callback" class="button voprosbtn popup-with-move-anim">Заказать звонок</a>
+			</div>
+		</div>
+
+		</div>
+	</div>
+</div>
+
+
+<footer>
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-8">
+				<div class="foo_block">
+					<p class="fooname">Контакты</p>
+					<ul>
+						<li>8 (351) 777-33-65</li>
+						<li><a href="#">info@mail.ru</a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="col-sm-4">
+				<div class="foo_block">
+					<p class="fooname">Наша компания:</p>
+					<ul class="footer_soc">
+						<li><a href="#"><img src="img/soc1.png" alt="Соц.Сеть"></a></li>
+						<li><a href="#"><img src="img/soc2.png" alt="Соц.Сеть"></a></li>
+						<li><a href="#"><img src="img/soc3.png" alt="Соц.Сеть"></a></li>
+						<li><a href="#"><img src="img/soc4.png" alt="Соц.Сеть"></a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="col-sm-12">
+				<p class="godfooter">© 2016 Должник Прав</p>
+			</div>
+
+			<!--
+				ИЗНАЧАЛЬНЫЙ ЦЕЛЫЙ КОД ФУТЕРА
+				<div class="col-md-4 col-sm-4">
+					<div class="foo_block">
+						<p class="fooname">Контакты</p>
+						<ul>
+							<li>8 (351) 777-33-65</li>
+							<li><a href="#">info@mail.ru</a></li>
+						</ul>
+					</div>
+					<div class="foo_block">
+						<p class="fooname">Документы</p>
+						<ul>
+							<li><a href="#">Политика<br>конфиденциальности</a></li>
+						</ul>
+					</div>
+					<div class="foo_block">
+						<ul class="footer_soc">
+							<li><a href="#"><img src="img/soc1.png" alt="Соц.Сеть"></a></li>
+							<li><a href="#"><img src="img/soc2.png" alt="Соц.Сеть"></a></li>
+							<li><a href="#"><img src="img/soc3.png" alt="Соц.Сеть"></a></li>
+							<li><a href="#"><img src="img/soc4.png" alt="Соц.Сеть"></a></li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="col-md-4 col-sm-4">
+					<div class="foo_block">
+						<p class="fooname">Банкротство</p>
+						<ul>
+							<li><a href="#">Банкротство физических лиц</a></li>
+							<li><a href="#">Реструктаризация кредита</a></li>
+						</ul>
+					</div>
+					<div class="foo_block">
+						<p class="fooname">Антиколлекторы</p>
+						<ul>
+							<li><a href="#">Антиколлекторское агенство</a></li>
+							<li><a href="#">Коллекторы звонят</a></li>
+							<li><a href="#">Коллекторы угрожают</a></li>
+						</ul>
+					</div>
+					<div class="foo_block">
+						<p class="fooname">Списание долга</p>
+						<ul>
+							<li><a href="#">Долги по кредиту</a></li>
+							<li><a href="#">Задолженность по кредиту</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="col-md-4 col-sm-4">
+					<div class="foo_block">
+						<p class="fooname">Не могу платить кредит</p>
+						<ul>
+							<li><a href="#">Нечем платить кредит</a></li>
+							<li><a href="#">Задолженность по кредиту</a></li>
+						</ul>
+					</div>
+					<div class="foo_block">
+						<p class="fooname">Суд по кредиту</p>
+						<ul>
+							<li><a href="#">Суд с банком</a></li>
+							<li><a href="#">Просрочка в банке</a></li>
+							<li><a href="#">Подали в суд за кредит</a></li>
+						</ul>
+					</div>
+					<div class="foo_block">
+						<p class="fooname">Кредитный адвокат</p>
+						<ul>
+							<li><a href="#">Кредитный юрист</a></li>
+							<li><a href="#">Помощь должникам</a></li>
+							<li><a href="#">Защита заемщиков</a></li>
+						</ul>
+					</div>
+				</div>
+		 -->
+
+
+
+		</div>
+	</div>
+</footer>
+
+
+
+
+
+	<div class="hidden">
+		<form class="popup-form callback zoom-anim-dialog" id="callback">
+			<div class="success"><h3>Спасибо, Ваша<br> заявка отправлена!</h3><p>Мы свяжемся в ближашее время.</p></div>
+			<h3>Заказать<br>обратный звонок:</h3>
+			<!-- Hidden Required Fields -->
+			<input type="hidden" name="project_name" value="dolzhnik-prav.ru">
+			<input type="hidden" name="admin_email" value="79088254025@yandex.ru">
+			<input type="hidden" name="form_subject" value="Заявка с всплывающей формы">
+			<!-- END Hidden Required Fields -->
+
+			<input class="name_form" type="text" name="Name" placeholder="Введите Ваше имя" required><br>
+			<input class="call_form" type="text" name="E-mail" placeholder="Введите телефон" required>
+			<button class="popupbtn">Отправить заявку</button>
+
+		</form>
+	</div>
+
+	<!--[if lt IE 9]>
+	<script src="libs/html5shiv/es5-shim.min.js"></script>
+	<script src="libs/html5shiv/html5shiv.min.js"></script>
+	<script src="libs/html5shiv/html5shiv-printshiv.min.js"></script>
+	<script src="libs/respond/respond.min.js"></script>
+	<![endif]-->
+
+	<!-- Load Scripts Start -->
+	<script>var scr = {"scripts":[
+		{"src" : "js/libs.js", "async" : false},
+		{"src" : "js/common.js", "async" : false}
+		]};!function(t,n,r){"use strict";var c=function(t){if("[object Array]"!==Object.prototype.toString.call(t))return!1;for(var r=0;r<t.length;r++){var c=n.createElement("script"),e=t[r];c.src=e.src,c.async=e.async,n.body.appendChild(c)}return!0};t.addEventListener?t.addEventListener("load",function(){c(r.scripts);},!1):t.attachEvent?t.attachEvent("onload",function(){c(r.scripts)}):t.onload=function(){c(r.scripts)}}(window,document,scr);
+	</script>
+	<!-- Load Scripts End -->
+
+</body>
+</html>

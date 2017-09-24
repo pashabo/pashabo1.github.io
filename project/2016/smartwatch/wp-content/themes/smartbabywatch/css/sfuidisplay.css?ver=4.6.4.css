@@ -1,0 +1,77 @@
+@font-face {
+    font-family: SFUIDisplay;
+    src: url('../fonts/sfuidisplay/SFUIDisplay-Regular.otf') format('opentype');
+    font-weight: 300;
+	font-style: normal;
+}
+@font-face {
+    font-family: SFUIDisplay;
+    src: url('../fonts/sfuidisplay/SFUIDisplay-Bold.otf') format('opentype');
+    font-weight: bold;
+}
+@font-face {
+    font-family: SFUIDisplay-Medium;
+    src: url('../fonts/sfuidisplay/SFUIDisplay-Medium.otf') format('opentype');
+}
+@font-face {
+    font-family: SFUIDisplay-Light;
+    src: url('../fonts/sfuidisplay/SFUIDisplay-Light.otf') format('opentype');
+}
+@font-face {
+    font-family: SFUIDisplay-Thin;
+    src: url('../fonts/sfuidisplay/SFUIDisplay-Thin.otf') format('opentype');
+}
+@font-face {
+    font-family: SFUIDisplay-Semibold;
+    src: url('../fonts/sfuidisplay/SFUIDisplay-Semibold.otf') format('opentype');
+}
+/*
+@font-face {
+    font-family: 'SF UI Display';
+    src: local('SF UI Display'), local('sfuidisplay'), url('../fonts/sfuidisplay/SFUIDisplay-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'SF UI Display';
+    src: local('SF UI Display'), local('sfuidisplay'), url('../fonts/sfuidisplay/SFUIDisplay-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-style: italic;
+}
+@font-face {
+    font-family: 'SF UI Display';
+    src: local('SF UI Display'), local('sfuidisplay'), url('../fonts/sfuidisplay/SFUIDisplay-Regular.otf') format('opentype');
+    font-weight: 600;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'SF UI Display';
+    src: local('SF UI Display'), local('sfuidisplay'), url('../fonts/sfuidisplay/SFUIDisplay-Regular.otf') format('opentype');
+    font-weight: 600;
+    font-style: italic;
+}
+@font-face {
+    font-family: 'SF UI Display';
+    src: local('SF UI Display'), local('sfuidisplay'), url('../fonts/sfuidisplay/SFUIDisplay-Regular.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'SF UI Display';
+    src: local('SF UI Display'), local('sfuidisplay'), url('../fonts/sfuidisplay/SFUIDisplay-Regular.otf') format('opentype');
+    font-weight: 700;
+    font-style: italic;
+}
+@font-face {
+    font-family: 'SF UI Display';
+    src: local('SF UI Display'), local('sfuidisplay'), url('../fonts/sfuidisplay/SFUIDisplay-Regular.otf') format('opentype');
+    font-weight: 800;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'SF UI Display';
+    src: local('SF UI Display'), local('sfuidisplay'), url('../fonts/sfuidisplay/SFUIDisplay-Regular.otf') format('opentype');
+    font-weight: 800;
+    font-style: italic;
+}
+*/
